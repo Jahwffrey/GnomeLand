@@ -21,7 +21,7 @@ public class Main extends JFrame{
     	//super(); 
 
         initialize(); 
-        
+
         this.addKeyListener(new KeyAdapter() { 
             public void keyPressed(KeyEvent evt) { //PRESSED
                     formKeyPressed(evt); 
@@ -30,8 +30,19 @@ public class Main extends JFrame{
                     formKeyReleased(evt); 
             } 
 
-        }); 
-        
+        });
+
+        this.addMouseListener(new MouseAdapter(){
+            public void mousePressed(MouseEvent mk){
+                panel.mousePressed(mk);
+            }
+            public void mouseReleased(MouseEvent mk){
+                panel.mouseReleased(mk);
+            }
+            public void mouseMoved(MouseEvent mk){
+                panel.mouseMoved(mk);
+            }
+        });
     }
 
     private void formKeyPressed(KeyEvent evt){
