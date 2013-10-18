@@ -37,6 +37,13 @@ public class Screen extends JPanel implements Runnable{
 
     public static int mouseX = 0;
     public static int mouseY = 0;
+
+    public static int rPressed = 0;
+    public static int lPressed = 0;
+    public static int uPressed = 0;
+    public static int dPressed = 0;
+
+    betterGnome Josh = new betterGnome(20,240);
     
     //GAMEPLAY VARS:
     //IMAGES:
@@ -45,7 +52,6 @@ public class Screen extends JPanel implements Runnable{
     
     public static int land[][];
 
-    gnome Bill = new gnome(10,8,20,0,0);
     
     Color sky = new Color(84,206,255);
     Color grass = new Color(0,167,0);
@@ -105,8 +111,10 @@ public class Screen extends JPanel implements Runnable{
 		}
         gg.setColor(red);
     	gg.drawRect(mouseX*blockSize-screenX,mouseY*blockSize-screenY,blockSize,blockSize);
-        gg.fillRect(Bill.headX-screenX-(Bill.width/2),Bill.headY-screenY,Bill.width,Bill.height+1);
+        gg.fillRect((Josh.x-screenX)-4,(Josh.y-screenY)-4,8,8);
         gg.setColor(black);
+        gg.drawRect((Josh.x-screenX),(Josh.y-screenY),0,0);
+        gg.drawRect((Josh.blockX*16)-screenX,(Josh.blockY*16)-screenY,blockSize,blockSize);
         //gg.drawLine(Bill.headX-screenX,Bill.headY-screenY,Bill.footX-screenX,Bill.footY-screenY);
         //gg.drawRect((Bill.blockX*blockSize)-screenX,(Bill.blockY*blockSize)-screenY,blockSize,blockSize);
     }
@@ -126,8 +134,19 @@ public class Screen extends JPanel implements Runnable{
     	case KeyEvent.VK_D:
     		rightPress = 1;
     		break;
-    	
-    	}
+        case KeyEvent.VK_DOWN:
+            dPressed = 1;
+            break;
+        case KeyEvent.VK_UP:
+                uPressed = 1;
+                break;
+            case KeyEvent.VK_LEFT:
+                lPressed = 1;
+                break;
+            case KeyEvent.VK_RIGHT:
+                rPressed = 1;
+                break;
+        }
     	
     }
 
@@ -146,6 +165,18 @@ public class Screen extends JPanel implements Runnable{
     	case KeyEvent.VK_D:
     		rightPress = 0;
     		break;
+            case KeyEvent.VK_DOWN:
+                dPressed = 0;
+                break;
+            case KeyEvent.VK_UP:
+                uPressed = 0;
+                break;
+            case KeyEvent.VK_LEFT:
+                lPressed = 0;
+                break;
+            case KeyEvent.VK_RIGHT:
+                rPressed = 0;
+                break;
     		
     	}
     }
@@ -156,7 +187,10 @@ public class Screen extends JPanel implements Runnable{
                 mouseX = ((mk.getX()-(blockSize/2)+4)+screenX)/blockSize;
                 mouseY = (((mk.getY()+(blockSize/2))+screenY)/blockSize)-2;
                 System.out.println(mouseX + "," + mouseY + " is " + land[mouseY][mouseX]);
-                Bill.jump(10);
+                break;
+            case MouseEvent.BUTTON3:
+                break;
+            case MouseEvent.BUTTON2:
                 break;
         }
     }
@@ -180,26 +214,34 @@ public class Screen extends JPanel implements Runnable{
 		land = World.generate(worldHeightInBlocks, worldLengthInBlocks, 10, 10, 12, 400, 400);
 		int testVar = 0;
 
+
 		while(true){
 
             if(waitFrames<1){
                 //WHERE ARE ALL GNOME VALUES?
-                Bill.headY=Bill.footY-Bill.height;
-                Bill.headX=Bill.footX;
-                    //WHICH BLOCK?
-                Bill.blockX=(Bill.footX/blockSize);
-                Bill.blockY=(Bill.footY/blockSize);
-
-                //WHAT NOW???
-                Bill.fall(1,10);
-
-                /*
-                if(land[(Bill.footY+4)/16][Bill.footX/16]!=1){
-                    Bill.footY+=6;
+                Josh.updateBlock();
+                if(rPressed==1){
+                    if(Josh.collideCheck(5,0)==1){
+                         Josh.moveHorizontal(5);
+                    }
                 }
-                else{
-                    Bill.footY=((Bill.blockY+1)*blockSize)-1;
-                }**/
+                if(lPressed==1){
+                    if(Josh.collideCheck(-5,0)==1){
+                        Josh.moveHorizontal(-5);
+                    }
+                }
+                if(uPressed==1){
+                    if(Josh.collideCheck(0,-5)==1){
+                        Josh.moveVertical(-5);
+                    }
+                }
+                if(dPressed==1){
+                    if(Josh.collideCheck(0,5)==1){
+                        Josh.moveVertical(5);
+                    }
+                }
+
+
 
                 waitFrames=maxWaitFrames;
             }

@@ -17,6 +17,8 @@ public class gnome {
     int height;
     int width;
 
+    int willMove = 0;
+
     int goingX;
     int goingY;
 
@@ -26,6 +28,9 @@ public class gnome {
     //0 = no tool
 
     int vspeed = 0;
+    int hspeed = 0;
+
+    boolean onGround = false;
 
 
     public gnome(){
@@ -59,13 +64,62 @@ public class gnome {
             if(vspeed>maxSpeed){
                 vspeed=maxSpeed;
             }
+            onGround = false;
+        }
+        else if(Screen.land[(footY+vspeed)/Screen.blockSize][(footX+willMove)/Screen.blockSize]==7){
+            footY+=vspeed/2;
+            vspeed+=grav/2;
+            if(vspeed>(maxSpeed/2)){
+                vspeed=maxSpeed/2;
+            }
+            onGround = false;
         }
         else{
             footY=((blockY+1)*Screen.blockSize)-1;
+            onGround = true;
+        }
+        if(Screen.land[blockX][blockY]!=0&&Screen.land[blockX][blockY]!=5&&Screen.land[blockX][blockY]!=6&&Screen.land[blockX][blockY]!=7){
+            footY-=16;
+            blockY-=1;
         }
     }
 
     public void jump(int speed){
-        vspeed=-speed;
+        if(onGround){
+            vspeed=-speed;
+        }
+    }
+
+    public void move(int speed){
+        willMove = speed;
+        if(Screen.land[(footY-1)/Screen.blockSize][(footX+willMove)/Screen.blockSize]==0||Screen.land[(footY-1)/Screen.blockSize][(footX+willMove)/Screen.blockSize]==5||Screen.land[(footY-1)/Screen.blockSize][(footX+willMove)/Screen.blockSize]==6||Screen.land[(footY-1)/Screen.blockSize][(footX+willMove)/Screen.blockSize]==7){
+            footX+=willMove;
+        }
+        if(Screen.land[(footY-1)/Screen.blockSize][(footX+willMove)/Screen.blockSize]!=0&&Screen.land[(footY-1)/Screen.blockSize][(footX+willMove)/Screen.blockSize]!=5&&Screen.land[(footY-1)/Screen.blockSize][(footX+willMove)/Screen.blockSize]!=6&&Screen.land[(footY-1)/Screen.blockSize][(footX+willMove)/Screen.blockSize]!=7){
+
+            //if colliding with walls a block away, this is why
+            if(willMove>0){
+                footX=((blockX/*+(willMove/Screen.blockSize)**/)*Screen.blockSize)+Screen.blockSize-1;
+                if(Screen.land[(footY-1)/Screen.blockSize][blockX+1]==0||Screen.land[(footY-1)/Screen.blockSize][blockX+1]==5||Screen.land[(footY-1)/Screen.blockSize][blockX+1]==6||Screen.land[(footY-1)/Screen.blockSize][blockX+1]==7){
+                    footX+=16;
+                }
+            }
+            if(willMove<0){
+                footX=((blockX+(willMove/Screen.blockSize))*Screen.blockSize)+1;
+                if(Screen.land[(footY-1)/Screen.blockSize][blockX-1]==0||Screen.land[(footY-1)/Screen.blockSize][blockX-1]==5||Screen.land[(footY-1)/Screen.blockSize][blockX-1]==6||Screen.land[(footY-1)/Screen.blockSize][blockX-1]==7){
+                    footX-=16;
+                }
+            }
+
+        }
+        willMove = 0;
+    }
+
+    public void setHspeed(int speed){
+        hspeed = speed;
+    }
+
+    public void moveHspeed(){
+        move(hspeed);
     }
 }
