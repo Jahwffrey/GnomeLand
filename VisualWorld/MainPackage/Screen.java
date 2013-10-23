@@ -4,7 +4,7 @@ package MainPackage;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-
+import java.util.ArrayList;
 import javax.swing.*;
 
 public class Screen extends JPanel implements Runnable{
@@ -38,12 +38,15 @@ public class Screen extends JPanel implements Runnable{
     public static int mouseX = 0;
     public static int mouseY = 0;
 
+    public static int grassResource = 0;
+    public static int dirtResource = 0;
+    public static int stoneResource = 0;
+    public static int metalResource = 0;
+
     public static int rPressed = 0;
     public static int lPressed = 0;
     public static int uPressed = 0;
     public static int dPressed = 0;
-
-    betterGnome Josh = new betterGnome(20,240);
     
     //GAMEPLAY VARS:
     //IMAGES:
@@ -51,6 +54,22 @@ public class Screen extends JPanel implements Runnable{
     public static Image CharNow;
     
     public static int land[][];
+
+    //THINGS ABOUT MOUSES AND GNOMES AND SELECTING AND SUCH!
+    public static int selectedGnome;
+    public static boolean aGnomeIsSelected = false;
+    public static int mouseCommand = 0;
+    //0=no command
+    //1=itelligentMove
+    //2=digging horizontal
+    //3=down digging
+    //4=diagonal digging
+
+
+
+
+
+    ArrayList<betterGnome> gnomes = new ArrayList<betterGnome>();
 
     
     Color sky = new Color(84,206,255);
@@ -111,12 +130,13 @@ public class Screen extends JPanel implements Runnable{
 		}
         gg.setColor(red);
     	gg.drawRect(mouseX*blockSize-screenX,mouseY*blockSize-screenY,blockSize,blockSize);
-        gg.fillRect((Josh.x-screenX)-4,(Josh.y-screenY)-4,8,8);
-        gg.setColor(black);
-        gg.drawRect((Josh.x-screenX),(Josh.y-screenY),0,0);
-        gg.drawRect((Josh.blockX*16)-screenX,(Josh.blockY*16)-screenY,blockSize,blockSize);
-        //gg.drawLine(Bill.headX-screenX,Bill.headY-screenY,Bill.footX-screenX,Bill.footY-screenY);
-        //gg.drawRect((Bill.blockX*blockSize)-screenX,(Bill.blockY*blockSize)-screenY,blockSize,blockSize);
+        for(int i = 1;i<gnomes.size();i++){
+            gg.setColor(red);
+            gg.fillRect((gnomes.get(i).x-screenX)-4,(gnomes.get(i).y-screenY)-4,8,8);
+            gg.setColor(black);
+            gg.drawRect((gnomes.get(i).x-screenX),(gnomes.get(i).y-screenY),0,0);
+            gg.drawRect((gnomes.get(i).blockX*16)-screenX,(gnomes.get(i).blockY*16)-screenY,blockSize,blockSize);
+        }
     }
 
     public void keyPressed(KeyEvent evt){
@@ -134,17 +154,35 @@ public class Screen extends JPanel implements Runnable{
     	case KeyEvent.VK_D:
     		rightPress = 1;
     		break;
-        case KeyEvent.VK_DOWN:
-            dPressed = 1;
-            break;
-        case KeyEvent.VK_UP:
-                uPressed = 1;
+            case KeyEvent.VK_0:
+                mouseCommand = 0;
                 break;
-            case KeyEvent.VK_LEFT:
-                lPressed = 1;
+            case KeyEvent.VK_1:
+                mouseCommand = 1;
                 break;
-            case KeyEvent.VK_RIGHT:
-                rPressed = 1;
+            case KeyEvent.VK_2:
+                mouseCommand = 2;
+                break;
+            case KeyEvent.VK_3:
+                mouseCommand = 3;
+                break;
+            case KeyEvent.VK_4:
+                mouseCommand = 4;
+                break;
+            case KeyEvent.VK_5:
+                mouseCommand = 5;
+                break;
+            case KeyEvent.VK_6:
+                mouseCommand = 6;
+                break;
+            case KeyEvent.VK_7:
+                mouseCommand = 7;
+                break;
+            case KeyEvent.VK_8:
+                mouseCommand = 8;
+                break;
+            case KeyEvent.VK_9:
+                mouseCommand = 9;
                 break;
         }
     	
@@ -165,19 +203,6 @@ public class Screen extends JPanel implements Runnable{
     	case KeyEvent.VK_D:
     		rightPress = 0;
     		break;
-            case KeyEvent.VK_DOWN:
-                dPressed = 0;
-                break;
-            case KeyEvent.VK_UP:
-                uPressed = 0;
-                break;
-            case KeyEvent.VK_LEFT:
-                lPressed = 0;
-                break;
-            case KeyEvent.VK_RIGHT:
-                rPressed = 0;
-                break;
-    		
     	}
     }
 
@@ -187,6 +212,85 @@ public class Screen extends JPanel implements Runnable{
                 mouseX = ((mk.getX()-(blockSize/2)+4)+screenX)/blockSize;
                 mouseY = (((mk.getY()+(blockSize/2))+screenY)/blockSize)-2;
                 System.out.println(mouseX + "," + mouseY + " is " + land[mouseY][mouseX]);
+                if(!aGnomeIsSelected){
+                    for(int i = 1;i<gnomes.size();i++){
+                        if(mouseX==gnomes.get(i).blockX&&mouseY==gnomes.get(i).blockY){
+                            gnomes.get(i).imSelected = true;
+                            aGnomeIsSelected=true;
+                            selectedGnome = i;
+                            System.out.println("Success!");
+                            i=gnomes.size();
+                        }
+                    }
+                    System.out.println("You have selected "+gnomes.get(selectedGnome).name);
+                }
+                else{
+                    if(mouseX==gnomes.get(selectedGnome).blockX&&mouseY==gnomes.get(selectedGnome).blockY){
+                        System.out.println("You just deselected "+gnomes.get(selectedGnome).name);
+                        gnomes.get(selectedGnome).imSelected = false;
+                        aGnomeIsSelected = false;
+                        selectedGnome = 0;
+                    }
+                    if(mouseCommand == 0){
+                        System.out.println("You just deselected "+gnomes.get(selectedGnome).name);
+                        gnomes.get(selectedGnome).imSelected = false;
+                        aGnomeIsSelected = false;
+                        selectedGnome = 0;
+                    }
+                    else if(mouseCommand == 1){
+                        if(mouseX!=gnomes.get(selectedGnome).blockX){
+                            gnomes.get(selectedGnome).targetBlockX=mouseX;
+                            gnomes.get(selectedGnome).myCommand = 1;
+                            System.out.println(gnomes.get(selectedGnome).name + " is now moving towards "+gnomes.get(selectedGnome).targetBlockX);
+                            gnomes.get(selectedGnome).imSelected = false;
+                            aGnomeIsSelected = false;
+                            selectedGnome = 0;
+                        }
+                        else{
+                            System.out.println("Selected something further away!");
+                        }
+                    }
+                    else if(mouseCommand == 2){
+                        if(mouseX!=gnomes.get(selectedGnome).blockX){
+                            gnomes.get(selectedGnome).targetBlockX=mouseX;
+                            gnomes.get(selectedGnome).myCommand = 2;
+                            System.out.println(gnomes.get(selectedGnome).name + " is now digging horizontally towards "+gnomes.get(selectedGnome).targetBlockX);
+                            gnomes.get(selectedGnome).imSelected = false;
+                            aGnomeIsSelected = false;
+                            selectedGnome = 0;
+                        }
+                        else{
+                            System.out.println("Selected something further away!");
+                        }
+                    }
+                    else if(mouseCommand==3){
+                        if(mouseY!=gnomes.get(selectedGnome).blockY){
+                            gnomes.get(selectedGnome).targetBlockY=mouseY;
+                            gnomes.get(selectedGnome).myCommand = 3;
+                            System.out.println(gnomes.get(selectedGnome).name + " is now digging vertically towards "+gnomes.get(selectedGnome).targetBlockY);
+                            gnomes.get(selectedGnome).imSelected = false;
+                            aGnomeIsSelected = false;
+                            selectedGnome = 0;
+                        }
+                        else{
+                            System.out.println("Selected something lower!!");
+                        }
+                    }
+                    else if(mouseCommand==4){
+                        if(mouseY!=gnomes.get(selectedGnome).blockY&&mouseX!=gnomes.get(selectedGnome).blockX){
+                            gnomes.get(selectedGnome).targetBlockY=mouseY;
+                            gnomes.get(selectedGnome).targetBlockX=mouseX;
+                            gnomes.get(selectedGnome).myCommand = 4;
+                            System.out.println(gnomes.get(selectedGnome).name + " is now digging smart towards ("+gnomes.get(selectedGnome).targetBlockX+","+gnomes.get(selectedGnome).targetBlockX+")");
+                            gnomes.get(selectedGnome).imSelected = false;
+                            aGnomeIsSelected = false;
+                            selectedGnome = 0;
+                        }
+                        else{
+                            System.out.println("Select and different block!");
+                        }
+                    }
+                }
                 break;
             case MouseEvent.BUTTON3:
                 break;
@@ -196,8 +300,8 @@ public class Screen extends JPanel implements Runnable{
     }
 
     public void mouseMoved(MouseEvent mk){
-        mouseX = (mk.getX()+screenX)/blockSize;
-        mouseY = (mk.getY()+screenY)/blockSize;
+        /*mouseX = (mk.getX()+screenX)/blockSize;
+        mouseY = (mk.getY()+screenY)/blockSize;**/
     }
 
     public void mouseReleased(MouseEvent mk){
@@ -213,34 +317,46 @@ public class Screen extends JPanel implements Runnable{
 		
 		land = World.generate(worldHeightInBlocks, worldLengthInBlocks, 10, 10, 12, 400, 400);
 		int testVar = 0;
+        gnomes.add(new betterGnome(10,240,"Nobody"));
+        gnomes.add(new betterGnome(20,240,"Josh"));
+        gnomes.add(new betterGnome(21,240,"Bill"));
 
 
 		while(true){
 
             if(waitFrames<1){
                 //WHERE ARE ALL GNOME VALUES?
-                Josh.updateBlock();
-                if(rPressed==1){
-                    if(Josh.collideCheck(5,0)==1){
-                         Josh.moveHorizontal(5);
-                    }
-                }
-                if(lPressed==1){
-                    if(Josh.collideCheck(-5,0)==1){
-                        Josh.moveHorizontal(-5);
-                    }
-                }
-                if(uPressed==1){
-                    if(Josh.collideCheck(0,-5)==1){
-                        Josh.moveVertical(-5);
-                    }
-                }
-                if(dPressed==1){
-                    if(Josh.collideCheck(0,5)==1){
-                        Josh.moveVertical(5);
-                    }
-                }
+                for(int i = 1;i<gnomes.size();i++){
+                    //EACH GNOME:
+                    gnomes.get(i).updateBlock();
 
+                    if(gnomes.get(i).myCommand==1){
+                        gnomes.get(i).moveHorizontal();
+                    }
+                    else if(gnomes.get(i).myCommand==2){
+                        gnomes.get(i).digHorizontal();
+                    }
+                    else if(gnomes.get(i).myCommand==3){
+                        gnomes.get(i).digVertical();
+                    }
+                    else if(gnomes.get(i).myCommand==4){
+                        gnomes.get(i).digDiagonal();
+                    }
+
+                    //MAKE THEM FALL!
+                    if(gnomes.get(i).collideCheck(0,5)!=0){
+                        gnomes.get(i).fall(1,5);
+                    }
+                    else{
+                        if(gnomes.get(i).vspeed>0){
+                            gnomes.get(i).y=(gnomes.get(i).blockY*blockSize)+14;
+                            gnomes.get(i).vspeed=0;
+                        }
+                    }
+
+                    //MAKE EM' MOVE!
+                    gnomes.get(i).goSpeed();
+                }
 
 
                 waitFrames=maxWaitFrames;
