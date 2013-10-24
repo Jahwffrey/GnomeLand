@@ -72,11 +72,19 @@ public class betterGnome{
             dirMod=-1;
         }
         else{
+            if(x-(blockX*16)<7||x-(blockX*16)>9){
+                hspeed = 4*dirMod;
+                goSpeed();
+            }
             dirMod=0;
             System.out.println(name + " has gotten to target X!");
             myCommand = 0;
         }
         if(!isFree(blockX+dirMod,blockY)&&!isFree(blockX+dirMod,blockY-1)&&!isFree(blockX,blockY+1)&&vspeed==0){
+            if(x-(blockX*16)<7||x-(blockX*16)>9){
+                hspeed = 4*dirMod;
+                goSpeed();
+            }
             dirMod=0;
             System.out.println(name + " cannot continue!");
             myCommand = 0;
@@ -245,11 +253,6 @@ public class betterGnome{
         }
     }
 
-
-
-
-
-
     //MOVEMENT COMMANDS!
     public void goSpeed(){
         if(hspeed!=0){
@@ -324,6 +327,12 @@ public class betterGnome{
             if(digTimer>2000/pickAxeLevel){
                 Screen.land[gridY][gridX]=0;
                 Screen.metalResource+=1;
+                digTimer = 0;
+            }
+        }
+        if(Screen.land[gridY][gridX]==7){//leaves
+            if(digTimer>2/pickAxeLevel){
+                Screen.land[gridY][gridX]=0;
                 digTimer = 0;
             }
         }

@@ -7,6 +7,10 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import javax.swing.*;
 import java.math.*;
+import java.awt.image.*;
+import java.net.URL;
+import java.io.*;
+import javax.imageio.*;
 
 public class Screen extends JPanel implements Runnable{
 
@@ -46,11 +50,16 @@ public class Screen extends JPanel implements Runnable{
     public static int metalResource = 0;
     
     //GAMEPLAY VARS:
+
     //IMAGES:
-    public static ImageIcon Character;
-    public static Image CharNow;
-    
-    public static int land[][];
+    Image bottMenu;
+    Image cancelBttn;
+    Image moveBttn;
+    Image digBttn;
+    Image menuBttn;
+
+
+    public static int land[][] = new int [worldHeightInBlocks][worldLengthInBlocks];
 
     //THINGS ABOUT MOUSES AND GNOMES AND SELECTING AND SUCH!
     public static int selectedGnome;
@@ -134,6 +143,13 @@ public class Screen extends JPanel implements Runnable{
             gg.setColor(black);
             gg.drawRect((gnomes.get(i).x-screenX),(gnomes.get(i).y-screenY),0,0);
             gg.drawRect((gnomes.get(i).blockX*16)-screenX,(gnomes.get(i).blockY*16)-screenY,blockSize,blockSize);
+        }
+        //gg.drawImage(bottMenu,0,screenHeight-64,this);
+        gg.drawImage(menuBttn,4,screenHeight-62,this);
+        if(aGnomeIsSelected){
+            gg.drawImage(cancelBttn,40,screenHeight-62,this);
+            gg.drawImage(moveBttn,76,screenHeight-62,this);
+            gg.drawImage(digBttn,112,screenHeight-62,this);
         }
     }
 
@@ -305,6 +321,21 @@ public class Screen extends JPanel implements Runnable{
                 }
                 break;
             case MouseEvent.BUTTON3:
+                System.out.println(mk.getX()+ " " + mk.getY());
+                if(aGnomeIsSelected){
+                    if(mk.getX()>=40&&mk.getX()<=72&mk.getY()>=screenHeight-34&&mk.getY()<=screenHeight-2){
+                        mouseCommand = 0;
+                        gnomes.get(selectedGnome).imSelected = false;
+                        aGnomeIsSelected = false;
+                        selectedGnome = 0;
+                    }
+                    if(mk.getX()>=76&&mk.getX()<=108&mk.getY()>=screenHeight-34&&mk.getY()<=screenHeight-2){
+                        mouseCommand = 1;
+                    }
+                    if(mk.getX()>=112&&mk.getX()<=144&mk.getY()>=screenHeight-34&&mk.getY()<=screenHeight-2){
+                        mouseCommand = 4;
+                    }
+                }
                 break;
             case MouseEvent.BUTTON2:
                 break;
@@ -326,7 +357,22 @@ public class Screen extends JPanel implements Runnable{
     
 	@Override
 	public void run() {
-		
+
+        //LOAD IMAGES:
+        URL imgPath = getClass().getResource("/MainPackage/pics/bottom_menu.png");
+        try {
+            bottMenu = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/cancel_button.png");
+            cancelBttn = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/move_button.png");
+            moveBttn = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/dig_button.png");
+            digBttn = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/menu_button.png");
+            menuBttn = ImageIO.read(imgPath);
+        } catch (IOException e) {System.out.println("NOOOOO!");}
+
+        //CREATE SOME VARS
 		land = World.generate(worldHeightInBlocks, worldLengthInBlocks, 10, 10, 12, 400, 400);
 		int testVar = 0;
         gnomes.add(new betterGnome(10,240,"Nobody"));
