@@ -140,6 +140,21 @@ public class betterGnome{
         }
     }
 
+    //DIG ADJACENT
+    public void digAdjacent(){
+        if(Math.abs(targetBlockY-blockY)<=1&&Math.abs(targetBlockX-blockX)<=1){
+            if(Screen.land[targetBlockY][targetBlockX]!=0){
+                digBlock(targetBlockX,targetBlockY);
+            }
+            else{
+                System.out.println(name + " has dug the block!");
+                myCommand = 0;
+            }
+        }
+        else{
+            System.out.println(name +"'s block is too far away!");
+        }
+    }
     //DIG DIAGONAL
     public void digDiagonal(){
         if(blockX<targetBlockX){
@@ -281,33 +296,63 @@ public class betterGnome{
         }
     }
 
+    //DIG!
     public void digBlock(int gridX,int gridY){
         digTimer+=1;
-        if(Screen.land[gridY][gridX]==1){
+        if(Screen.land[gridY][gridX]==1){//grass
             if(digTimer>70/pickAxeLevel){
                 Screen.land[gridY][gridX]=0;
                 Screen.grassResource+=1;
                 digTimer = 0;
             }
         }
-        if(Screen.land[gridY][gridX]==2){
+        if(Screen.land[gridY][gridX]==2){//dirt
             if(digTimer>200/pickAxeLevel){
                 Screen.land[gridY][gridX]=0;
                 Screen.dirtResource+=1;
                 digTimer = 0;
             }
         }
-        if(Screen.land[gridY][gridX]==3){
+        if(Screen.land[gridY][gridX]==3){//stone
             if(digTimer>500/pickAxeLevel){
                 Screen.land[gridY][gridX]=0;
                 Screen.stoneResource+=1;
                 digTimer = 0;
             }
         }
-        if(Screen.land[gridY][gridX]==4){
+        if(Screen.land[gridY][gridX]==4){//metal
             if(digTimer>2000/pickAxeLevel){
                 Screen.land[gridY][gridX]=0;
                 Screen.metalResource+=1;
+                digTimer = 0;
+            }
+        }
+        if(Screen.land[gridY][gridX]==5){//wood!
+            if(digTimer>120/pickAxeLevel){
+                Screen.land[gridY][gridX]=0;
+                Screen.woodRescource+=1;
+                for(int yy = gridY-1;yy>10;yy--){
+                    if(Screen.land[yy][gridX]==5){
+                        Screen.land[yy][gridX]=0;
+                        Screen.woodRescource+=1;
+                    }
+                    else{
+                        if(Screen.land[yy][gridX]==6){
+                            Screen.land[yy+1][gridX]=0;
+                            Screen.land[yy][gridX]=0;
+                            Screen.land[yy-1][gridX]=0;
+                            Screen.land[yy][gridX-1]=0;
+                            Screen.land[yy][gridX+1]=0;
+                            Screen.land[yy+1][gridX-1]=0;
+                            Screen.land[yy+1][gridX+1]=0;
+                            Screen.land[yy+1][gridX+2]=0;
+                            Screen.land[yy+1][gridX-2]=0;
+                            Screen.land[yy][gridX-1]=0;
+                            Screen.land[yy][gridX+1]=0;
+                        }
+                        break;
+                    }
+                }
                 digTimer = 0;
             }
         }

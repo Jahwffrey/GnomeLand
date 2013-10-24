@@ -146,7 +146,7 @@ public class World {
 				if(i<height-2){
 					//plant a tree
 					if(land[i+1][ii]==1&&land[i][ii]==0){
-						if(i>10&&(int)(rand(seed)*15)==12){
+						if(i>10&&ii>7&&ii<widt-7&&(int)(rand(seed)*15)==12){
 							System.out.println("Planting A Tree");
 							land[i][ii]=5;
 							xx=ii;
