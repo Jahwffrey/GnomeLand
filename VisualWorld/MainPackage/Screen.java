@@ -57,9 +57,12 @@ public class Screen extends JPanel implements Runnable{
     Image moveBttn;
     Image digBttn;
     Image menuBttn;
+    Image digAdjBttn;
+    Image bigMenu;
 
 
     public static int land[][] = new int [worldHeightInBlocks][worldLengthInBlocks];
+    public static boolean theMenuIsOpen = false;
 
     //THINGS ABOUT MOUSES AND GNOMES AND SELECTING AND SUCH!
     public static int selectedGnome;
@@ -103,12 +106,14 @@ public class Screen extends JPanel implements Runnable{
     	
 		/*for(int i = 0;i<land.length;i++){
 			for(int ii = 0;ii<land[1].length;ii++){**/
+        gg.setColor(sky);
+        gg.fillRect(0,0,screenLength,screenHeight);
 		for(int i = topBorder;i<topBorder+viewHeight;i++){
 			for(int ii = leftBorder;ii<leftBorder+viewWidth;ii++){
-				if(land[i][ii]==0){
-					gg.setColor(sky);
-				}
-				else if(land[i][ii]==1){
+				//if(land[i][ii]==0){
+					//gg.setColor(sky);
+				//}
+				if(land[i][ii]==1){
 					gg.setColor(grass);
 				}
 				else if(land[i][ii]==2){
@@ -132,7 +137,9 @@ public class Screen extends JPanel implements Runnable{
 				else{
 					gg.setColor(black);
 				}
-				gg.fillRect(ii*blockSize-screenX, i*blockSize-screenY, blockSize, blockSize);
+                if(land[i][ii]!=0){
+				    gg.fillRect(ii*blockSize-screenX, i*blockSize-screenY, blockSize+1, blockSize+1);
+                }
 			}
 		}
         gg.setColor(red);
@@ -140,17 +147,23 @@ public class Screen extends JPanel implements Runnable{
         for(int i = 1;i<gnomes.size();i++){
             gg.setColor(red);
             gg.fillRect((gnomes.get(i).x-screenX)-4,(gnomes.get(i).y-screenY)-4,8,8);
-            gg.setColor(black);
-            gg.drawRect((gnomes.get(i).x-screenX),(gnomes.get(i).y-screenY),0,0);
-            gg.drawRect((gnomes.get(i).blockX*16)-screenX,(gnomes.get(i).blockY*16)-screenY,blockSize,blockSize);
+            gg.setColor(Color.WHITE);
+            gg.drawString(gnomes.get(i).name,(gnomes.get(i).x-screenX)-(gnomes.get(i).name.length()*3),(gnomes.get(i).y-screenY)+15);
+            //gg.drawRect((gnomes.get(i).x-screenX),(gnomes.get(i).y-screenY),0,0);
+            //gg.drawRect((gnomes.get(i).blockX*16)-screenX,(gnomes.get(i).blockY*16)-screenY,blockSize,blockSize);
         }
         //gg.drawImage(bottMenu,0,screenHeight-64,this);
-        gg.drawImage(menuBttn,4,screenHeight-62,this);
+        gg.drawImage(menuBttn,mouseMenuButtonLeft(1)-3,mouseMenuButtonUp(2)+9,this);
         if(aGnomeIsSelected){
-            gg.drawImage(cancelBttn,40,screenHeight-62,this);
-            gg.drawImage(moveBttn,76,screenHeight-62,this);
-            gg.drawImage(digBttn,112,screenHeight-62,this);
+            gg.drawImage(cancelBttn,mouseMenuButtonLeft(2)-3,mouseMenuButtonUp(2)+9,this);
+            gg.drawImage(moveBttn,mouseMenuButtonLeft(3)-3,mouseMenuButtonUp(2)+9,this);
+            gg.drawImage(digBttn,mouseMenuButtonLeft(4)-3,mouseMenuButtonUp(2)+9,this);
+            gg.drawImage(digAdjBttn,mouseMenuButtonLeft(5)-3,mouseMenuButtonUp(2)+9,this);
         }
+        if(theMenuIsOpen){
+            gg.drawImage(bigMenu,mouseMenuButtonLeft(1)-3,mouseMenuButtonUp(7)+9,this);
+        }
+        gg.dispose();
     }
 
     public void keyPressed(KeyEvent evt){
@@ -322,18 +335,38 @@ public class Screen extends JPanel implements Runnable{
                 break;
             case MouseEvent.BUTTON3:
                 System.out.println(mk.getX()+ " " + mk.getY());
+                if(mouseIsInMenuPosition(mk.getX(),mk.getY(),1,1)){
+                    if(!theMenuIsOpen){
+                        theMenuIsOpen = true;
+                        System.out.println(theMenuIsOpen);
+                    }
+                    else{
+                        theMenuIsOpen = false;
+                        System.out.println(theMenuIsOpen);
+                    }
+                }
                 if(aGnomeIsSelected){
-                    if(mk.getX()>=40&&mk.getX()<=72&mk.getY()>=screenHeight-34&&mk.getY()<=screenHeight-2){
+                    //if(mk.getX()>=40&&mk.getX()<=72&mk.getY()>=screenHeight-34&&mk.getY()<=screenHeight-2){
+                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),2,1)){
+                        System.out.println("Cancel!");
                         mouseCommand = 0;
                         gnomes.get(selectedGnome).imSelected = false;
                         aGnomeIsSelected = false;
                         selectedGnome = 0;
                     }
-                    if(mk.getX()>=76&&mk.getX()<=108&mk.getY()>=screenHeight-34&&mk.getY()<=screenHeight-2){
+                    //if(mk.getX()>=76&&mk.getX()<=108&mk.getY()>=screenHeight-34&&mk.getY()<=screenHeight-2){
+                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),3,1)){
+                        System.out.println("Move!");
                         mouseCommand = 1;
                     }
-                    if(mk.getX()>=112&&mk.getX()<=144&mk.getY()>=screenHeight-34&&mk.getY()<=screenHeight-2){
+                    //if(mk.getX()>=112&&mk.getX()<=144&mk.getY()>=screenHeight-34&&mk.getY()<=screenHeight-2){
+                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),4,1)){
+                        System.out.println("Dig!");
                         mouseCommand = 4;
+                    }
+                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),5,1)){
+                        System.out.println("Dig Adjacent!");
+                        mouseCommand = 5;
                     }
                 }
                 break;
@@ -342,10 +375,10 @@ public class Screen extends JPanel implements Runnable{
         }
     }
 
-    public void mouseMoved(MouseEvent mk){
+    //public void mouseMoved(MouseEvent mk){
         /*mouseX = (mk.getX()+screenX)/blockSize;
         mouseY = (mk.getY()+screenY)/blockSize;**/
-    }
+    //}
 
     public void mouseReleased(MouseEvent mk){
         switch(mk.getButton()){
@@ -353,6 +386,27 @@ public class Screen extends JPanel implements Runnable{
         }
     }
 
+    public int mouseMenuButtonLeft(int xx){
+        return (4*xx)+(32*(xx-1))+3;
+    }
+    public int mouseMenuButtonRight(int xx){
+        return (4*xx)+(32*(xx-1))+32+3;
+    }
+    public int mouseMenuButtonUp(int yy){
+        return (screenHeight-(2*yy))-(32*(yy-1))-32-3;
+    }
+    public int mouseMenuButtonDown(int yy){
+        return (screenHeight-(2*yy))-(32*(yy-1))-3;
+    }
+
+    public boolean mouseIsInMenuPosition(int x, int y, int xx, int yy){
+        if(x>=mouseMenuButtonLeft(xx)&&x<=mouseMenuButtonRight(xx)&&y<=mouseMenuButtonDown(yy)&&y>=mouseMenuButtonUp(yy)){
+            return(true);
+        }
+        else{
+            return(false);
+        }
+    }
     
     
 	@Override
@@ -370,6 +424,10 @@ public class Screen extends JPanel implements Runnable{
             digBttn = ImageIO.read(imgPath);
             imgPath = getClass().getResource("/MainPackage/pics/menu_button.png");
             menuBttn = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/dig_adjacent.png");
+            digAdjBttn = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/big_menu.png");
+            bigMenu = ImageIO.read(imgPath);
         } catch (IOException e) {System.out.println("NOOOOO!");}
 
         //CREATE SOME VARS
@@ -378,6 +436,7 @@ public class Screen extends JPanel implements Runnable{
         gnomes.add(new betterGnome(10,240,"Nobody"));
         gnomes.add(new betterGnome(20,240,"Josh"));
         gnomes.add(new betterGnome(21,240,"Bill"));
+        gnomes.add(new betterGnome(22,200,"Kyre"));
 
 
 		while(true){
@@ -485,9 +544,10 @@ public class Screen extends JPanel implements Runnable{
                 viewY=screenY;
             }
 
-			try  { 
+			try  {
 				Thread.sleep(1);
-        	} catch(InterruptedException ex) { 
+                //Thread.yield();
+        	} catch(InterruptedException ex) {
         	}
 			repaint();
 		}

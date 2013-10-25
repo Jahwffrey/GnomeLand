@@ -39,9 +39,9 @@ public class Main extends JFrame{
             public void mouseReleased(MouseEvent mk){
                 panel.mouseReleased(mk);
             }
-            public void mouseMoved(MouseEvent mk){
+            /*public void mouseMoved(MouseEvent mk){
                 panel.mouseMoved(mk);
-            }
+            }**/
         });
     }
 
