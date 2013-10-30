@@ -39,9 +39,12 @@ public class Main extends JFrame{
             public void mouseReleased(MouseEvent mk){
                 panel.mouseReleased(mk);
             }
-            /*public void mouseMoved(MouseEvent mk){
+        });
+
+        this.addMouseMotionListener(new MouseAdapter(){
+            public void mouseMoved(MouseEvent mk){
                 panel.mouseMoved(mk);
-            }**/
+            }
         });
     }
 
@@ -61,7 +64,7 @@ public class Main extends JFrame{
     	this.setContentPane(getJContentPane());
     	this.setTitle("An abundance of tiny humanoids.");
     }
-    
+
     private JPanel getJContentPane(){
         if (jContentPane == null) { 
             jContentPane = new JPanel(); 

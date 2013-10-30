@@ -51,8 +51,8 @@ public class betterGnome{
     public betterGnome(int gridX,int gridY,String namer){
         blockX=gridX;
         blockY=gridY;
-        x=gridX*blockSize;
-        y=gridY*blockSize;
+        x=gridX*blockSize+8;
+        y=gridY*blockSize+8;
         hspeed=0;
         vspeed=0;
         name = namer;
@@ -62,6 +62,26 @@ public class betterGnome{
     }
 
     //HIGHER COMMANDS:
+
+    public void buildAdjacent(int xxx, int yyy){
+        if(Screen.inventory.queue.type.equals("dirt")){
+            Screen.land[yyy][xxx]=2;
+            Screen.inventory.queue.count-=1;
+        }
+        else if(Screen.inventory.queue.type.equals("stone")){
+            Screen.land[yyy][xxx]=3;
+            Screen.inventory.queue.count-=1;
+        }
+        else if(Screen.inventory.queue.type.equals("metal")){
+            Screen.land[yyy][xxx]=4;
+            Screen.inventory.queue.count-=1;
+        }
+
+        if(Screen.inventory.queue.count==0){
+            Screen.inventory.queue.type="nothing";
+            Screen.inventory.queue.maxCount=0;
+        }
+    }
 
     //MOVE DIRECTION AVOIDING OBSTACLES
     public void moveHorizontal(){
@@ -73,7 +93,7 @@ public class betterGnome{
         }
         else{
             if(x-(blockX*16)<7||x-(blockX*16)>9){
-                hspeed = 4*dirMod;
+                hspeed = 7*dirMod;
                 goSpeed();
             }
             dirMod=0;
@@ -82,7 +102,7 @@ public class betterGnome{
         }
         if(!isFree(blockX+dirMod,blockY)&&!isFree(blockX+dirMod,blockY-1)&&!isFree(blockX,blockY+1)&&vspeed==0){
             if(x-(blockX*16)<7||x-(blockX*16)>9){
-                hspeed = 4*dirMod;
+                hspeed = 7*dirMod;
                 goSpeed();
             }
             dirMod=0;
@@ -117,6 +137,10 @@ public class betterGnome{
             dirMod=-1;
         }
         else{
+            if(x-(blockX*16)<7||x-(blockX*16)>9){
+                hspeed = 7*dirMod;
+                goSpeed();
+            }
             dirMod=0;
             System.out.println(name + " has gotten to target X!");
             myCommand = 0;
@@ -163,6 +187,9 @@ public class betterGnome{
             System.out.println(name +"'s block is too far away!");
         }
     }
+
+
+
     //DIG DIAGONAL
     public void digDiagonal(){
         if(blockX<targetBlockX){
@@ -172,6 +199,10 @@ public class betterGnome{
             dirMod=-1;
         }
         else{
+            if(x-(blockX*16)<7||x-(blockX*16)>9){
+                hspeed = 7*dirMod;
+                goSpeed();
+            }
             dirMod=0;
             digVertical();
         }
@@ -233,7 +264,7 @@ public class betterGnome{
         if(blockX==targetBlockX&&blockY==targetBlockY){
             System.out.println(name + " has gotten to target space!");
             if(x-(blockX*16)<7||x-(blockX*16)>9){
-                hspeed = 2*dirMod;
+                hspeed = 7*dirMod;
             }
             else{
                 hspeed = 0;
@@ -244,7 +275,7 @@ public class betterGnome{
         if(blockX==targetBlockX&&blockY>targetBlockY){
             System.out.println(name + " cannot continue!");
             if(x-(blockX*16)<7||x-(blockX*16)>9){
-                hspeed = 2*dirMod;
+                hspeed = 7*dirMod;
             }
             else{
                 hspeed = 0;
@@ -291,12 +322,15 @@ public class betterGnome{
     }
 
     public boolean isFree(int gridX,int gridY){
-        if(Screen.land[gridY][gridX]==0||Screen.land[gridY][gridX]==5||Screen.land[gridY][gridX]==6||Screen.land[gridY][gridX]==7){
-            return true;
+        switch(Screen.land[gridY][gridX]){
+            //all the solids:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                return false;
         }
-        else{
-            return false;
-        }
+        return true;
     }
 
     //DIG!
@@ -305,28 +339,32 @@ public class betterGnome{
         if(Screen.land[gridY][gridX]==1){//grass
             if(digTimer>70/pickAxeLevel){
                 Screen.land[gridY][gridX]=0;
-                Screen.grassResource+=1;
+                //Screen.grassResource+=1;
+                Screen.inventory.addItem("grass", 1);
                 digTimer = 0;
             }
         }
         if(Screen.land[gridY][gridX]==2){//dirt
             if(digTimer>200/pickAxeLevel){
                 Screen.land[gridY][gridX]=0;
-                Screen.dirtResource+=1;
+                //Screen.dirtResource+=1;
+                Screen.inventory.addItem("dirt", 1);
                 digTimer = 0;
             }
         }
         if(Screen.land[gridY][gridX]==3){//stone
             if(digTimer>500/pickAxeLevel){
                 Screen.land[gridY][gridX]=0;
-                Screen.stoneResource+=1;
+                //Screen.stoneResource+=1;
+                Screen.inventory.addItem("stone", 1);
                 digTimer = 0;
             }
         }
         if(Screen.land[gridY][gridX]==4){//metal
             if(digTimer>2000/pickAxeLevel){
                 Screen.land[gridY][gridX]=0;
-                Screen.metalResource+=1;
+                //Screen.metalResource+=1;
+                Screen.inventory.addItem("metal", 1);
                 digTimer = 0;
             }
         }
@@ -339,11 +377,13 @@ public class betterGnome{
         if(Screen.land[gridY][gridX]==5){//wood!
             if(digTimer>120/pickAxeLevel){
                 Screen.land[gridY][gridX]=0;
-                Screen.woodRescource+=1;
+                //Screen.woodRescource+=1;
+                Screen.inventory.addItem("wood", 1);
                 for(int yy = gridY-1;yy>10;yy--){
                     if(Screen.land[yy][gridX]==5){
                         Screen.land[yy][gridX]=0;
-                        Screen.woodRescource+=1;
+                        //Screen.woodRescource+=1;
+                        Screen.inventory.addItem("wood", 1);
                     }
                     else{
                         if(Screen.land[yy][gridX]==6){

@@ -16,8 +16,6 @@ public class Screen extends JPanel implements Runnable{
 
     Thread thisThread;
     //SYSTEM VARS:
-    public static int waitFrames = 10;
-    public static int maxWaitFrames = 10;
 
     public static int screenLength = 800;
     public static int screenHeight = 400;
@@ -42,14 +40,19 @@ public class Screen extends JPanel implements Runnable{
 
     public static int mouseX = 0;
     public static int mouseY = 0;
+    public static int superMouseX = 0;
+    public static int superMouseY = 0;
 
     public static int grassResource = 0;
-    public static int woodRescource = 0;
+    //public static int woodRescource = 0;
     public static int dirtResource = 0;
     public static int stoneResource = 0;
     public static int metalResource = 0;
+
+    public static int menuItemToBuild = 25;
     
     //GAMEPLAY VARS:
+    public static menu inventory = new menu(5,5);
 
     //IMAGES:
     Image bottMenu;
@@ -59,6 +62,8 @@ public class Screen extends JPanel implements Runnable{
     Image menuBttn;
     Image digAdjBttn;
     Image bigMenu;
+    Image buildBttn;
+    Image trashBttn;
 
 
     public static int land[][] = new int [worldHeightInBlocks][worldLengthInBlocks];
@@ -159,9 +164,25 @@ public class Screen extends JPanel implements Runnable{
             gg.drawImage(moveBttn,mouseMenuButtonLeft(3)-3,mouseMenuButtonUp(2)+9,this);
             gg.drawImage(digBttn,mouseMenuButtonLeft(4)-3,mouseMenuButtonUp(2)+9,this);
             gg.drawImage(digAdjBttn,mouseMenuButtonLeft(5)-3,mouseMenuButtonUp(2)+9,this);
+            gg.drawImage(buildBttn,mouseMenuButtonLeft(6)-3,mouseMenuButtonUp(2)+9,this);
+        }
+        if(!inventory.queue.type.equals("nothing")){
+            gg.drawString(inventory.queue.type,superMouseX,superMouseY);
         }
         if(theMenuIsOpen){
+            gg.setColor(black);
             gg.drawImage(bigMenu,mouseMenuButtonLeft(1)-3,mouseMenuButtonUp(7)+9,this);
+            gg.drawImage(trashBttn,mouseMenuButtonLeft(6)-3,mouseMenuButtonUp(3)+9,this);
+            int r = 0;
+            int a = 0;
+            for(int i = 0;i<inventory.fullCount;i++){
+                if(a==5){
+                    r++;
+                    a=0;
+                }
+                a++;
+                gg.drawString(inventory.items.get(i).type.charAt(0) + ":" + inventory.items.get(i).count,mouseMenuButtonLeft(a)-3,mouseMenuButtonUp(10-(3+r))+9+20);
+            }
         }
         gg.dispose();
     }
@@ -330,11 +351,47 @@ public class Screen extends JPanel implements Runnable{
                                 selectedGnome = 0;
                             }
                             break;
+                        case 6:
+                            boolean canBuild = true;
+                            if(Math.abs(mouseY-gnomes.get(selectedGnome).blockY)<=1&&Math.abs(mouseX-gnomes.get(selectedGnome).blockX)<=1){
+                                gnomes.get(selectedGnome).targetBlockY=mouseY;
+                                gnomes.get(selectedGnome).targetBlockX=mouseX;
+                                for(int i = 1;i<gnomes.size();i++){
+                                    if(mouseX==gnomes.get(i).blockX&&mouseY==gnomes.get(i).blockY){
+                                        canBuild = false;
+                                    }
+                                }
+                                if(canBuild){
+                                    if(land[mouseY][mouseX]==0){
+                                        if(inventory.queue.type!="nothing"&&inventory.queue.count>0){
+                                            gnomes.get(selectedGnome).buildAdjacent(mouseX,mouseY);
+                                            System.out.println(gnomes.get(selectedGnome).name + " built a "+inventory.queue.type);
+                                        }
+                                    }
+                                }
+                                gnomes.get(selectedGnome).imSelected = false;
+                                aGnomeIsSelected = false;
+                                selectedGnome = 0;
+                            }
+                            break;
                     }
                 }
                 break;
             case MouseEvent.BUTTON3:
                 System.out.println(mk.getX()+ " " + mk.getY());
+                //ACCESS INVENTORY:
+                if(theMenuIsOpen){
+                    for(int i = 6;i>1;i--){
+                        for(int ii = 1;ii<6;ii++){
+                            if(mouseIsInMenuPosition(mk.getX(),mk.getY(),ii,i)){
+                                inventory.accessSpace(inventory.twoDToOneD((ii-1)+((6-i)*4),6-i),3);
+                            }
+                        }
+                    }
+                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),6,2)){
+                        inventory.throwAwayQueue();
+                    }
+                }
                 if(mouseIsInMenuPosition(mk.getX(),mk.getY(),1,1)){
                     if(!theMenuIsOpen){
                         theMenuIsOpen = true;
@@ -368,17 +425,32 @@ public class Screen extends JPanel implements Runnable{
                         System.out.println("Dig Adjacent!");
                         mouseCommand = 5;
                     }
+                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),6,1)){
+                        System.out.println("Building!");
+                        theMenuIsOpen = true;
+                        mouseCommand = 6;
+                    }
                 }
                 break;
             case MouseEvent.BUTTON2:
+                //ACCESS INVENTORY:
+                for(int i = 6;i>1;i--){
+                    for(int ii = 1;ii<6;ii++){
+                        if(mouseIsInMenuPosition(mk.getX(),mk.getY(),ii,i)){
+                            inventory.accessSpace(inventory.twoDToOneD((ii-1)+((6-i)*4),6-i),1);
+                        }
+                    }
+                }
                 break;
         }
     }
 
-    //public void mouseMoved(MouseEvent mk){
-        /*mouseX = (mk.getX()+screenX)/blockSize;
-        mouseY = (mk.getY()+screenY)/blockSize;**/
-    //}
+    public void mouseMoved(MouseEvent mk){
+        mouseX = ((mk.getX()-(blockSize/2)+4)+screenX)/blockSize;
+        mouseY = (((mk.getY()+(blockSize/2))+screenY)/blockSize)-2;
+        superMouseX=mk.getX();
+        superMouseY=mk.getY();
+    }
 
     public void mouseReleased(MouseEvent mk){
         switch(mk.getButton()){
@@ -412,6 +484,10 @@ public class Screen extends JPanel implements Runnable{
 	@Override
 	public void run() {
 
+        long now;
+        int waitFrames = 10;
+        int maxWaitFrames = 10;
+
         //LOAD IMAGES:
         URL imgPath = getClass().getResource("/MainPackage/pics/bottom_menu.png");
         try {
@@ -428,6 +504,10 @@ public class Screen extends JPanel implements Runnable{
             digAdjBttn = ImageIO.read(imgPath);
             imgPath = getClass().getResource("/MainPackage/pics/big_menu.png");
             bigMenu = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/build_button.png");
+            buildBttn = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/trash_button.png");
+            trashBttn = ImageIO.read(imgPath);
         } catch (IOException e) {System.out.println("NOOOOO!");}
 
         //CREATE SOME VARS
@@ -437,6 +517,8 @@ public class Screen extends JPanel implements Runnable{
         gnomes.add(new betterGnome(20,240,"Josh"));
         gnomes.add(new betterGnome(21,240,"Bill"));
         gnomes.add(new betterGnome(22,200,"Kyre"));
+        gnomes.add(new betterGnome(23,240,"Raxacoricofallapatorius"));
+        gnomes.add(new betterGnome(24,240,"J"));
 
 
 		while(true){
@@ -544,11 +626,14 @@ public class Screen extends JPanel implements Runnable{
                 viewY=screenY;
             }
 
-			try  {
+            now = System.currentTimeMillis();
+            while((System.currentTimeMillis()-now)<1){
+            }
+			/*try  {
 				Thread.sleep(1);
                 //Thread.yield();
         	} catch(InterruptedException ex) {
-        	}
+        	}**/
 			repaint();
 		}
 	}
