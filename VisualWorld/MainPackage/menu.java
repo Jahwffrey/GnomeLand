@@ -86,13 +86,13 @@ public class menu {
     public void accessSpace(int space,int buttonType){
         //LEFT CLICK:
         if(buttonType==1){
-            if(Screen.mouseCommand == 6){
+            /*if(Screen.mouseCommand == 6){
             //decide wich ones can be built:
                 if(canBeBuilt(items.get(space).type)){
                     Screen.menuItemToBuild = space;
                     System.out.println("Gana build a "+items.get(space).type);
                 }
-            }
+            }**/
         }
         //RIGHT CLICK:
         if(buttonType==3){

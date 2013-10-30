@@ -202,35 +202,24 @@ public class Screen extends JPanel implements Runnable{
     	case KeyEvent.VK_D:
     		rightPress = 1;
     		break;
-            case KeyEvent.VK_0:
-                mouseCommand = 0;
-                break;
             case KeyEvent.VK_1:
-                mouseCommand = 1;
+                System.out.println("Cancel!");
+                //mouseCommand = 0;
+                gnomes.get(selectedGnome).imSelected = false;
+                aGnomeIsSelected = false;
+                selectedGnome = 0;
                 break;
             case KeyEvent.VK_2:
-                mouseCommand = 2;
+                mouseCommand = 1;
                 break;
             case KeyEvent.VK_3:
-                mouseCommand = 3;
-                break;
-            case KeyEvent.VK_4:
                 mouseCommand = 4;
                 break;
-            case KeyEvent.VK_5:
+            case KeyEvent.VK_4:
                 mouseCommand = 5;
                 break;
-            case KeyEvent.VK_6:
+            case KeyEvent.VK_5:
                 mouseCommand = 6;
-                break;
-            case KeyEvent.VK_7:
-                mouseCommand = 7;
-                break;
-            case KeyEvent.VK_8:
-                mouseCommand = 8;
-                break;
-            case KeyEvent.VK_9:
-                mouseCommand = 9;
                 break;
         }
     	
@@ -260,6 +249,16 @@ public class Screen extends JPanel implements Runnable{
                 mouseX = ((mk.getX()-(blockSize/2)+4)+screenX)/blockSize;
                 mouseY = (((mk.getY()+(blockSize/2))+screenY)/blockSize)-2;
                 System.out.println(mouseX + "," + mouseY + " is " + land[mouseY][mouseX]);
+                if(mouseIsInMenuPosition(mk.getX(),mk.getY(),1,1)){
+                    if(!theMenuIsOpen){
+                        theMenuIsOpen = true;
+                        System.out.println(theMenuIsOpen);
+                    }
+                    else{
+                        theMenuIsOpen = false;
+                        System.out.println(theMenuIsOpen);
+                    }
+                }
                 if(!aGnomeIsSelected){
                     for(int i = 1;i<gnomes.size();i++){
                         if(mouseX==gnomes.get(i).blockX&&mouseY==gnomes.get(i).blockY){
@@ -273,110 +272,126 @@ public class Screen extends JPanel implements Runnable{
                     System.out.println("You have selected "+gnomes.get(selectedGnome).name);
                 }
                 else{
-                    if(mouseX==gnomes.get(selectedGnome).blockX&&mouseY==gnomes.get(selectedGnome).blockY&&false){
+                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),1,1)){
+                        System.out.println("Menu, bro");
+                    }
+                    else if(mouseIsInMenuPosition(mk.getX(),mk.getY(),2,1)){
+                        System.out.println("Cancel!");
+                        //mouseCommand = 0;
+                        gnomes.get(selectedGnome).imSelected = false;
+                        aGnomeIsSelected = false;
+                        selectedGnome = 0;
+                    }
+                    //if(mk.getX()>=76&&mk.getX()<=108&mk.getY()>=screenHeight-34&&mk.getY()<=screenHeight-2){
+                    else if(mouseIsInMenuPosition(mk.getX(),mk.getY(),3,1)){
+                        System.out.println("Move!");
+                        mouseCommand = 1;
+                    }
+                    //if(mk.getX()>=112&&mk.getX()<=144&mk.getY()>=screenHeight-34&&mk.getY()<=screenHeight-2){
+                    else if(mouseIsInMenuPosition(mk.getX(),mk.getY(),4,1)){
+                        System.out.println("Dig!");
+                        mouseCommand = 4;
+                    }
+                    else if(mouseIsInMenuPosition(mk.getX(),mk.getY(),5,1)){
+                        System.out.println("Dig Adjacent!");
+                        mouseCommand = 5;
+                    }
+                    else if(mouseIsInMenuPosition(mk.getX(),mk.getY(),6,1)){
+                        System.out.println("Building!");
+                        theMenuIsOpen = true;
+                        mouseCommand = 6;
+                    }
+                    else if(mouseX==gnomes.get(selectedGnome).blockX&&mouseY==gnomes.get(selectedGnome).blockY&&false){
                         System.out.println("You just deselected "+gnomes.get(selectedGnome).name);
                         gnomes.get(selectedGnome).imSelected = false;
                         aGnomeIsSelected = false;
                         selectedGnome = 0;
                     }
-                    switch(mouseCommand){
-                        case 0:
-                            System.out.println("You just deselected "+gnomes.get(selectedGnome).name);
-                            gnomes.get(selectedGnome).imSelected = false;
-                            aGnomeIsSelected = false;
-                            selectedGnome = 0;
-                            break;
-                        case 1:
-                            if(mouseX!=gnomes.get(selectedGnome).blockX){
-                                gnomes.get(selectedGnome).targetBlockX=mouseX;
-                                gnomes.get(selectedGnome).targetBlockY=mouseY;
-                                gnomes.get(selectedGnome).myCommand = 1;
-                                System.out.println(gnomes.get(selectedGnome).name + " is now moving towards "+gnomes.get(selectedGnome).targetBlockX);
+                    else{
+                        switch(mouseCommand){
+                            case 0:
+                                System.out.println("You just deselected "+gnomes.get(selectedGnome).name);
                                 gnomes.get(selectedGnome).imSelected = false;
                                 aGnomeIsSelected = false;
                                 selectedGnome = 0;
-                            }
-                            else{
-                                System.out.println("Selected something further away!");
-                            }
-                            break;
-                        case 2:
-                            if(mouseX!=gnomes.get(selectedGnome).blockX){
-                                gnomes.get(selectedGnome).targetBlockX=mouseX;
-                                gnomes.get(selectedGnome).myCommand = 2;
-                                System.out.println(gnomes.get(selectedGnome).name + " is now digging horizontally towards "+gnomes.get(selectedGnome).targetBlockX);
-                                gnomes.get(selectedGnome).imSelected = false;
-                                aGnomeIsSelected = false;
-                                selectedGnome = 0;
-                            }
-                            else{
-                                System.out.println("Selected something further away!");
-                            }
-                            break;
-                        case 3:
-                            if(mouseY!=gnomes.get(selectedGnome).blockY){
-                                gnomes.get(selectedGnome).targetBlockY=mouseY;
-                                gnomes.get(selectedGnome).myCommand = 3;
-                                System.out.println(gnomes.get(selectedGnome).name + " is now digging vertically towards "+gnomes.get(selectedGnome).targetBlockY);
-                                gnomes.get(selectedGnome).imSelected = false;
-                                aGnomeIsSelected = false;
-                                selectedGnome = 0;
-                            }
-                            else{
-                                System.out.println("Selected something lower!!");
-                            }
-                            break;
-                        case 4:
-                            if(!(mouseY==gnomes.get(selectedGnome).blockY&&mouseX==gnomes.get(selectedGnome).blockX)){
-                                gnomes.get(selectedGnome).targetBlockY=mouseY;
-                                gnomes.get(selectedGnome).targetBlockX=mouseX;
-                                gnomes.get(selectedGnome).myCommand = 4;
-                                System.out.println(gnomes.get(selectedGnome).name + " is now digging smart towards ("+gnomes.get(selectedGnome).targetBlockX+","+gnomes.get(selectedGnome).targetBlockX+")");
-                                gnomes.get(selectedGnome).imSelected = false;
-                                aGnomeIsSelected = false;
-                                selectedGnome = 0;
-                            }
-                            else{
-                                System.out.println("Select and different block!");
-                            }
-                            break;
-                        case 5:
-                            if(Math.abs(mouseY-gnomes.get(selectedGnome).blockY)<=1&&Math.abs(mouseX-gnomes.get(selectedGnome).blockX)<=1){
-                                gnomes.get(selectedGnome).targetBlockY=mouseY;
-                                gnomes.get(selectedGnome).targetBlockX=mouseX;
-                                gnomes.get(selectedGnome).myCommand = 5;
-                                System.out.println(gnomes.get(selectedGnome).name + " is now digging!");
-                                gnomes.get(selectedGnome).imSelected = false;
-                                aGnomeIsSelected = false;
-                                selectedGnome = 0;
-                            }
-                            break;
-                        case 6:
-                            boolean canBuild = true;
-                            if(Math.abs(mouseY-gnomes.get(selectedGnome).blockY)<=1&&Math.abs(mouseX-gnomes.get(selectedGnome).blockX)<=1){
-                                gnomes.get(selectedGnome).targetBlockY=mouseY;
-                                gnomes.get(selectedGnome).targetBlockX=mouseX;
-                                for(int i = 1;i<gnomes.size();i++){
-                                    if(mouseX==gnomes.get(i).blockX&&mouseY==gnomes.get(i).blockY){
-                                        canBuild = false;
-                                    }
+                                break;
+                            case 1:
+                                if(mouseX!=gnomes.get(selectedGnome).blockX){
+                                    gnomes.get(selectedGnome).targetBlockX=mouseX;
+                                    gnomes.get(selectedGnome).targetBlockY=mouseY;
+                                    gnomes.get(selectedGnome).myCommand = 1;
+                                    System.out.println(gnomes.get(selectedGnome).name + " is now moving towards "+gnomes.get(selectedGnome).targetBlockX);
                                 }
-                                if(canBuild){
-                                    if(land[mouseY][mouseX]==0){
-                                        if(inventory.queue.type!="nothing"&&inventory.queue.count>0){
-                                            gnomes.get(selectedGnome).buildAdjacent(mouseX,mouseY);
-                                            System.out.println(gnomes.get(selectedGnome).name + " built a "+inventory.queue.type);
+                                else{
+                                    System.out.println("Selected something further away!");
+                                }
+                                break;
+                            case 2:
+                                if(mouseX!=gnomes.get(selectedGnome).blockX){
+                                    gnomes.get(selectedGnome).targetBlockX=mouseX;
+                                    gnomes.get(selectedGnome).myCommand = 2;
+                                    System.out.println(gnomes.get(selectedGnome).name + " is now digging horizontally towards "+gnomes.get(selectedGnome).targetBlockX);
+                                }
+                                else{
+                                    System.out.println("Selected something further away!");
+                                }
+                                break;
+                            case 3:
+                                if(mouseY!=gnomes.get(selectedGnome).blockY){
+                                    gnomes.get(selectedGnome).targetBlockY=mouseY;
+                                    gnomes.get(selectedGnome).myCommand = 3;
+                                    System.out.println(gnomes.get(selectedGnome).name + " is now digging vertically towards "+gnomes.get(selectedGnome).targetBlockY);
+                                }
+                                else{
+                                    System.out.println("Selected something lower!!");
+                                }
+                                break;
+                            case 4:
+                                if(!(mouseY==gnomes.get(selectedGnome).blockY&&mouseX==gnomes.get(selectedGnome).blockX)){
+                                    gnomes.get(selectedGnome).targetBlockY=mouseY;
+                                    gnomes.get(selectedGnome).targetBlockX=mouseX;
+                                    gnomes.get(selectedGnome).myCommand = 4;
+                                    System.out.println(gnomes.get(selectedGnome).name + " is now digging smart towards ("+gnomes.get(selectedGnome).targetBlockX+","+gnomes.get(selectedGnome).targetBlockX+")");
+                                }
+                                else{
+                                    System.out.println("Select and different block!");
+                                }
+                                break;
+                            case 5:
+                                if(Math.abs(mouseY-gnomes.get(selectedGnome).blockY)<=1&&Math.abs(mouseX-gnomes.get(selectedGnome).blockX)<=1){
+                                    gnomes.get(selectedGnome).targetBlockY=mouseY;
+                                    gnomes.get(selectedGnome).targetBlockX=mouseX;
+                                    gnomes.get(selectedGnome).myCommand = 5;
+                                    System.out.println(gnomes.get(selectedGnome).name + " is now digging!");
+                                }
+                                break;
+                            case 6:
+                                boolean canBuild = true;
+                                if(Math.abs(mouseY-gnomes.get(selectedGnome).blockY)<=1&&Math.abs(mouseX-gnomes.get(selectedGnome).blockX)<=1){
+                                    gnomes.get(selectedGnome).targetBlockY=mouseY;
+                                    gnomes.get(selectedGnome).targetBlockX=mouseX;
+                                    for(int i = 1;i<gnomes.size();i++){
+                                        if(mouseX==gnomes.get(i).blockX&&mouseY==gnomes.get(i).blockY){
+                                            canBuild = false;
                                         }
                                     }
+                                    if(canBuild){
+                                        if(land[mouseY][mouseX]==0){
+                                            if(inventory.queue.type!="nothing"&&inventory.queue.count>0){
+                                                gnomes.get(selectedGnome).buildAdjacent(mouseX,mouseY);
+                                                System.out.println(gnomes.get(selectedGnome).name + " built a "+inventory.queue.type);
+                                            }
+                                        }
+                                    }
+                                    /*gnomes.get(selectedGnome).imSelected = false;
+                                    aGnomeIsSelected = false;
+                                    selectedGnome = 0;**/
                                 }
-                                gnomes.get(selectedGnome).imSelected = false;
-                                aGnomeIsSelected = false;
-                                selectedGnome = 0;
-                            }
-                            break;
+                                break;
+                        }
                     }
+                    break;
                 }
-                break;
             case MouseEvent.BUTTON3:
                 System.out.println(mk.getX()+ " " + mk.getY());
                 //ACCESS INVENTORY:
@@ -392,44 +407,8 @@ public class Screen extends JPanel implements Runnable{
                         inventory.throwAwayQueue();
                     }
                 }
-                if(mouseIsInMenuPosition(mk.getX(),mk.getY(),1,1)){
-                    if(!theMenuIsOpen){
-                        theMenuIsOpen = true;
-                        System.out.println(theMenuIsOpen);
-                    }
-                    else{
-                        theMenuIsOpen = false;
-                        System.out.println(theMenuIsOpen);
-                    }
-                }
                 if(aGnomeIsSelected){
                     //if(mk.getX()>=40&&mk.getX()<=72&mk.getY()>=screenHeight-34&&mk.getY()<=screenHeight-2){
-                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),2,1)){
-                        System.out.println("Cancel!");
-                        mouseCommand = 0;
-                        gnomes.get(selectedGnome).imSelected = false;
-                        aGnomeIsSelected = false;
-                        selectedGnome = 0;
-                    }
-                    //if(mk.getX()>=76&&mk.getX()<=108&mk.getY()>=screenHeight-34&&mk.getY()<=screenHeight-2){
-                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),3,1)){
-                        System.out.println("Move!");
-                        mouseCommand = 1;
-                    }
-                    //if(mk.getX()>=112&&mk.getX()<=144&mk.getY()>=screenHeight-34&&mk.getY()<=screenHeight-2){
-                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),4,1)){
-                        System.out.println("Dig!");
-                        mouseCommand = 4;
-                    }
-                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),5,1)){
-                        System.out.println("Dig Adjacent!");
-                        mouseCommand = 5;
-                    }
-                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),6,1)){
-                        System.out.println("Building!");
-                        theMenuIsOpen = true;
-                        mouseCommand = 6;
-                    }
                 }
                 break;
             case MouseEvent.BUTTON2:
