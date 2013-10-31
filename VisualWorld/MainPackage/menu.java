@@ -140,6 +140,29 @@ public class menu {
         return counter;
     }
 
+    public void removeItemAmount(String ttype,int ccount){
+        for (int i = 0;i<fullCount;i++){
+            if(items.get(i).type.equals(ttype)){
+                if(items.get(i).count>=ccount){
+                    items.get(i).count-=ccount;
+                    ccount=0;
+                    if(items.get(i).count<=0){
+                        items.get(i).count=0;
+                        items.get(i).type="nothing";
+                        items.get(i).maxCount=0;
+                    }
+                    return;
+                }
+                else if(items.get(i).count<ccount){
+                    ccount-=items.get(i).count;
+                    items.get(i).count=0;
+                    items.get(i).type="nothing";
+                    items.get(i).maxCount=0;
+                }
+            }
+        }
+    }
+
     public boolean isFull(){
         for (int i = 0;i<fullCount;i++){
             if(items.get(i).type.equals("nothing")){

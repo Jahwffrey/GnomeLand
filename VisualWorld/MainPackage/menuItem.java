@@ -26,7 +26,7 @@ public class menuItem {
         if(ttype == "dirt"||ttype == "stone"||ttype == "grass"){
             maxCount = 200;
         }
-        else if(ttype == "metal"||ttype == "wood"){
+        else if(ttype == "metal"||ttype == "wood"||ttype == "harddirt"){
             maxCount = 100;
         }
         else{

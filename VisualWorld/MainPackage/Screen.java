@@ -43,13 +43,9 @@ public class Screen extends JPanel implements Runnable{
     public static int superMouseX = 0;
     public static int superMouseY = 0;
 
-    public static int grassResource = 0;
-    //public static int woodRescource = 0;
-    public static int dirtResource = 0;
-    public static int stoneResource = 0;
-    public static int metalResource = 0;
-
     public static int menuItemToBuild = 25;
+
+    public static int craftMenuToRightVal = 0;
     
     //GAMEPLAY VARS:
     public static menu inventory = new menu(5,5);
@@ -64,6 +60,14 @@ public class Screen extends JPanel implements Runnable{
     Image bigMenu;
     Image buildBttn;
     Image trashBttn;
+    Image craftMenu;
+    Image hardMudCraft;
+    Image ggrass;
+    Image ddirt;
+    Image hhardmud;
+    Image sstone;
+    Image wwood;
+    Image mmetal;
 
 
     public static int land[][] = new int [worldHeightInBlocks][worldLengthInBlocks];
@@ -85,11 +89,14 @@ public class Screen extends JPanel implements Runnable{
 
 
     ArrayList<betterGnome> gnomes = new ArrayList<betterGnome>();
+    ArrayList<craftingRecipe> craftables = new ArrayList<craftingRecipe>();
+    ArrayList<craftingRecipe> canCraft = new ArrayList<craftingRecipe>();
 
     
     Color sky = new Color(84,206,255);
     Color grass = new Color(0,167,0);
     Color dirt  = new Color(86,34,0);
+    Color darkdirt  = new Color(46,0,0);
     Color stone = new Color(128,128,128);
     Color metal = new Color(40,40,40);
     Color wood = new Color(114,45,0);
@@ -139,11 +146,17 @@ public class Screen extends JPanel implements Runnable{
 				else if(land[i][ii]==7){
 					gg.setColor(water);
 				}
+                else if(land[i][ii]==8){
+                    gg.setColor(darkdirt);
+                }
 				else{
 					gg.setColor(black);
 				}
                 if(land[i][ii]!=0){
 				    gg.fillRect(ii*blockSize-screenX, i*blockSize-screenY, blockSize+1, blockSize+1);
+                    /*if(land[i][ii]==8){
+                        gg.drawImage(mmetal,ii*blockSize-screenX,i*blockSize-screenY,this);
+                    }**/
                 }
 			}
 		}
@@ -173,6 +186,20 @@ public class Screen extends JPanel implements Runnable{
             gg.setColor(black);
             gg.drawImage(bigMenu,mouseMenuButtonLeft(1)-3,mouseMenuButtonUp(7)+9,this);
             gg.drawImage(trashBttn,mouseMenuButtonLeft(6)-3,mouseMenuButtonUp(3)+9,this);
+            gg.drawImage(craftMenu,mouseMenuButtonLeft(1)-3,mouseMenuButtonUp(8)+9,this);
+            try{
+                if(canCraft.size()>0){
+                    for(int i = craftMenuToRightVal;i<4+craftMenuToRightVal;i++){
+                        if(i<canCraft.size()&&canCraft.get(i)!=null){
+                            gg.drawImage(canCraft.get(i).img,mouseMenuButtonLeft(2+(i-craftMenuToRightVal))-3,mouseMenuButtonUp(8)+9,this);
+                        }
+                    }
+                }
+            }catch(IndexOutOfBoundsException a){
+                System.out.println("Out of Bounds!");
+            }catch(NullPointerException r){
+                System.out.println("Null Point!");
+            }
             int r = 0;
             int a = 0;
             for(int i = 0;i<inventory.fullCount;i++){
@@ -181,7 +208,27 @@ public class Screen extends JPanel implements Runnable{
                     a=0;
                 }
                 a++;
-                gg.drawString(inventory.items.get(i).type.charAt(0) + ":" + inventory.items.get(i).count,mouseMenuButtonLeft(a)-3,mouseMenuButtonUp(10-(3+r))+9+20);
+                if(inventory.items.get(i).type!="nothing"){
+                    if(inventory.items.get(i).type=="grass"){
+                        gg.drawImage(ggrass,mouseMenuButtonLeft(a)+5,mouseMenuButtonUp(10-(3+r))+9+2,this);
+                    }
+                    else if(inventory.items.get(i).type=="dirt"){
+                        gg.drawImage(ddirt,mouseMenuButtonLeft(a)+5,mouseMenuButtonUp(10-(3+r))+9+2,this);
+                    }
+                    else if(inventory.items.get(i).type=="harddirt"){
+                        gg.drawImage(hhardmud,mouseMenuButtonLeft(a)+5,mouseMenuButtonUp(10-(3+r))+9+2,this);
+                    }
+                    else if(inventory.items.get(i).type=="stone"){
+                        gg.drawImage(sstone,mouseMenuButtonLeft(a)+5,mouseMenuButtonUp(10-(3+r))+9+2,this);
+                    }
+                    else if(inventory.items.get(i).type=="wood"){
+                        gg.drawImage(wwood,mouseMenuButtonLeft(a)+5,mouseMenuButtonUp(10-(3+r))+9+2,this);
+                    }
+                    else if(inventory.items.get(i).type=="metal"){
+                        gg.drawImage(mmetal,mouseMenuButtonLeft(a)+5,mouseMenuButtonUp(10-(3+r))+9+2,this);
+                    }
+                    gg.drawString(Integer.toString(inventory.items.get(i).count),mouseMenuButtonLeft(a)+3,mouseMenuButtonUp(10-(3+r))+9+29);
+                }
             }
         }
         gg.dispose();
@@ -406,6 +453,34 @@ public class Screen extends JPanel implements Runnable{
                     if(mouseIsInMenuPosition(mk.getX(),mk.getY(),6,2)){
                         inventory.throwAwayQueue();
                     }
+                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),1,7)){
+                        if(craftMenuToRightVal>0)
+                            craftMenuToRightVal-=1;
+                    }
+                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),6,7)){
+                        if(canCraft.size()>craftMenuToRightVal+4)
+                            craftMenuToRightVal+=1;
+                    }
+                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),2,7)){
+                        if(canCraft.size()>0){
+                            canCraft.get(craftMenuToRightVal).craft();
+                        }
+                    }
+                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),3,7)){
+                        if(canCraft.size()>1){
+                            canCraft.get(craftMenuToRightVal+1).craft();
+                        }
+                    }
+                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),4,7)){
+                        if(canCraft.size()>2){
+                            canCraft.get(craftMenuToRightVal+2).craft();
+                        }
+                    }
+                    if(mouseIsInMenuPosition(mk.getX(),mk.getY(),5,7)){
+                        if(canCraft.size()>3){
+                            canCraft.get(craftMenuToRightVal+3).craft();
+                        }
+                    }
                 }
                 if(aGnomeIsSelected){
                     //if(mk.getX()>=40&&mk.getX()<=72&mk.getY()>=screenHeight-34&&mk.getY()<=screenHeight-2){
@@ -487,6 +562,23 @@ public class Screen extends JPanel implements Runnable{
             buildBttn = ImageIO.read(imgPath);
             imgPath = getClass().getResource("/MainPackage/pics/trash_button.png");
             trashBttn = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/craft_menu.png");
+            craftMenu = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/hardMudCraft.png");
+            hardMudCraft = ImageIO.read(imgPath);
+
+            imgPath = getClass().getResource("/MainPackage/pics/dirt.png");
+            ddirt = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/grass.png");
+            ggrass = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/hardmud.png");
+            hhardmud = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/stone.png");
+            sstone = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/wood.png");
+            wwood = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/metal.png");
+            mmetal = ImageIO.read(imgPath);
         } catch (IOException e) {System.out.println("NOOOOO!");}
 
         //CREATE SOME VARS
@@ -498,6 +590,11 @@ public class Screen extends JPanel implements Runnable{
         gnomes.add(new betterGnome(22,200,"Kyre"));
         gnomes.add(new betterGnome(23,240,"Raxacoricofallapatorius"));
         gnomes.add(new betterGnome(24,240,"J"));
+
+
+        //        ALL THE CRAFING RECIPES:
+            //Hard Mud:
+        craftables.add(new craftingRecipe("dirt",50,"harddirt",1,hardMudCraft));
 
 
 		while(true){
@@ -541,6 +638,15 @@ public class Screen extends JPanel implements Runnable{
                     gnomes.get(i).goSpeed();
                 }
 
+                //BUILD THE CAN CRAFT RECIPE:
+                if(theMenuIsOpen){
+                    canCraft.clear();
+                    for(int i = 0;i<craftables.size();i++){
+                        if(craftables.get(i).canBeMade()){
+                            canCraft.add(craftables.get(i));
+                        }
+                    }
+                }
 
                 waitFrames=maxWaitFrames;
             }

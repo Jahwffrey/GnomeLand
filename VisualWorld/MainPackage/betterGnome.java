@@ -61,7 +61,19 @@ public class betterGnome{
         pickAxeLevel=10;
     }
 
-    //HIGHER COMMANDS:
+    //WILL BE EDITED OFTEN COMMANDS:
+    public boolean isFree(int gridX,int gridY){
+        switch(Screen.land[gridY][gridX]){
+            //all the solids:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 8:
+                return false;
+        }
+        return true;
+    }
 
     public void buildAdjacent(int xxx, int yyy){
         if(Screen.inventory.queue.type.equals("dirt")){
@@ -76,12 +88,100 @@ public class betterGnome{
             Screen.land[yyy][xxx]=4;
             Screen.inventory.queue.count-=1;
         }
+        else if(Screen.inventory.queue.type.equals("harddirt")){
+            Screen.land[yyy][xxx]=8;
+            Screen.inventory.queue.count-=1;
+        }
 
         if(Screen.inventory.queue.count==0){
             Screen.inventory.queue.type="nothing";
             Screen.inventory.queue.maxCount=0;
         }
     }
+
+    //DIG!
+    public void digBlock(int gridX,int gridY){
+        digTimer+=1;
+        if(Screen.land[gridY][gridX]==1){//grass
+            if(digTimer>70/pickAxeLevel){
+                Screen.land[gridY][gridX]=0;
+                //Screen.grassResource+=1;
+                Screen.inventory.addItem("grass", 1);
+                digTimer = 0;
+            }
+        }
+        if(Screen.land[gridY][gridX]==8){//harddirt
+            if(digTimer>300/pickAxeLevel){
+                Screen.land[gridY][gridX]=0;
+                //Screen.grassResource+=1;
+                Screen.inventory.addItem("harddirt", 1);
+                digTimer = 0;
+            }
+        }
+        if(Screen.land[gridY][gridX]==2){//dirt
+            if(digTimer>200/pickAxeLevel){
+                Screen.land[gridY][gridX]=0;
+                //Screen.dirtResource+=1;
+                Screen.inventory.addItem("dirt", 1);
+                digTimer = 0;
+            }
+        }
+        if(Screen.land[gridY][gridX]==3){//stone
+            if(digTimer>500/pickAxeLevel){
+                Screen.land[gridY][gridX]=0;
+                //Screen.stoneResource+=1;
+                Screen.inventory.addItem("stone", 1);
+                digTimer = 0;
+            }
+        }
+        if(Screen.land[gridY][gridX]==4){//metal
+            if(digTimer>2000/pickAxeLevel){
+                Screen.land[gridY][gridX]=0;
+                //Screen.metalResource+=1;
+                Screen.inventory.addItem("metal", 1);
+                digTimer = 0;
+            }
+        }
+        if(Screen.land[gridY][gridX]==6){//leaves
+            if(digTimer>2/pickAxeLevel){
+                Screen.land[gridY][gridX]=0;
+                digTimer = 0;
+            }
+        }
+        if(Screen.land[gridY][gridX]==5){//wood!
+            if(digTimer>120/pickAxeLevel){
+                Screen.land[gridY][gridX]=0;
+                //Screen.woodRescource+=1;
+                Screen.inventory.addItem("wood", 1);
+                for(int yy = gridY-1;yy>10;yy--){
+                    if(Screen.land[yy][gridX]==5){
+                        Screen.land[yy][gridX]=0;
+                        //Screen.woodRescource+=1;
+                        Screen.inventory.addItem("wood", 1);
+                    }
+                    else{
+                        if(Screen.land[yy][gridX]==6){
+                            Screen.land[yy+1][gridX]=0;
+                            Screen.land[yy][gridX]=0;
+                            Screen.land[yy-1][gridX]=0;
+                            Screen.land[yy][gridX-1]=0;
+                            Screen.land[yy][gridX+1]=0;
+                            Screen.land[yy+1][gridX-1]=0;
+                            Screen.land[yy+1][gridX+1]=0;
+                            Screen.land[yy+1][gridX+2]=0;
+                            Screen.land[yy+1][gridX-2]=0;
+                            Screen.land[yy][gridX-1]=0;
+                            Screen.land[yy][gridX+1]=0;
+                        }
+                        break;
+                    }
+                }
+                digTimer = 0;
+            }
+        }
+    }
+
+    //HIGHER COMMANDS:
 
     //MOVE DIRECTION AVOIDING OBSTACLES
     public void moveHorizontal(){
@@ -284,6 +384,9 @@ public class betterGnome{
         }
     }
 
+
+    //LOWER COMMANDS
+
     //MOVEMENT COMMANDS!
     public void goSpeed(){
         if(hspeed!=0){
@@ -319,92 +422,6 @@ public class betterGnome{
     public void updateBlock(){
         blockX=x/blockSize;
         blockY=y/blockSize;
-    }
-
-    public boolean isFree(int gridX,int gridY){
-        switch(Screen.land[gridY][gridX]){
-            //all the solids:
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-                return false;
-        }
-        return true;
-    }
-
-    //DIG!
-    public void digBlock(int gridX,int gridY){
-        digTimer+=1;
-        if(Screen.land[gridY][gridX]==1){//grass
-            if(digTimer>70/pickAxeLevel){
-                Screen.land[gridY][gridX]=0;
-                //Screen.grassResource+=1;
-                Screen.inventory.addItem("grass", 1);
-                digTimer = 0;
-            }
-        }
-        if(Screen.land[gridY][gridX]==2){//dirt
-            if(digTimer>200/pickAxeLevel){
-                Screen.land[gridY][gridX]=0;
-                //Screen.dirtResource+=1;
-                Screen.inventory.addItem("dirt", 1);
-                digTimer = 0;
-            }
-        }
-        if(Screen.land[gridY][gridX]==3){//stone
-            if(digTimer>500/pickAxeLevel){
-                Screen.land[gridY][gridX]=0;
-                //Screen.stoneResource+=1;
-                Screen.inventory.addItem("stone", 1);
-                digTimer = 0;
-            }
-        }
-        if(Screen.land[gridY][gridX]==4){//metal
-            if(digTimer>2000/pickAxeLevel){
-                Screen.land[gridY][gridX]=0;
-                //Screen.metalResource+=1;
-                Screen.inventory.addItem("metal", 1);
-                digTimer = 0;
-            }
-        }
-        if(Screen.land[gridY][gridX]==7){//leaves
-            if(digTimer>2/pickAxeLevel){
-                Screen.land[gridY][gridX]=0;
-                digTimer = 0;
-            }
-        }
-        if(Screen.land[gridY][gridX]==5){//wood!
-            if(digTimer>120/pickAxeLevel){
-                Screen.land[gridY][gridX]=0;
-                //Screen.woodRescource+=1;
-                Screen.inventory.addItem("wood", 1);
-                for(int yy = gridY-1;yy>10;yy--){
-                    if(Screen.land[yy][gridX]==5){
-                        Screen.land[yy][gridX]=0;
-                        //Screen.woodRescource+=1;
-                        Screen.inventory.addItem("wood", 1);
-                    }
-                    else{
-                        if(Screen.land[yy][gridX]==6){
-                            Screen.land[yy+1][gridX]=0;
-                            Screen.land[yy][gridX]=0;
-                            Screen.land[yy-1][gridX]=0;
-                            Screen.land[yy][gridX-1]=0;
-                            Screen.land[yy][gridX+1]=0;
-                            Screen.land[yy+1][gridX-1]=0;
-                            Screen.land[yy+1][gridX+1]=0;
-                            Screen.land[yy+1][gridX+2]=0;
-                            Screen.land[yy+1][gridX-2]=0;
-                            Screen.land[yy][gridX-1]=0;
-                            Screen.land[yy][gridX+1]=0;
-                        }
-                        break;
-                    }
-                }
-                digTimer = 0;
-            }
-        }
     }
 
     public int collideCheck(int xDist, int yDist){
@@ -482,25 +499,6 @@ public class betterGnome{
         }
         else{
             return 1;
-        }
-    }
-
-    public void moveToContactDirection(int direction){
-        //1 = right
-        //2 = down
-        //3 = left
-        //4 = up
-        if(direction==1){
-            x=(blockX*blockSize)+(blockSize-1);
-        }
-        if(direction==2){
-            y=(blockY*Screen.blockSize)+14;
-        }
-        if(direction==3){
-            x=(blockX*blockSize)+1;
-        }
-        if(direction==2){
-            y=(blockY*blockSize)+2;
         }
     }
 }
