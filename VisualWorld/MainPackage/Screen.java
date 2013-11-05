@@ -68,6 +68,8 @@ public class Screen extends JPanel implements Runnable{
     Image sstone;
     Image wwood;
     Image mmetal;
+    Image ladderCraft;
+    Image lladder;
 
 
     public static int land[][] = new int [worldHeightInBlocks][worldLengthInBlocks];
@@ -150,13 +152,13 @@ public class Screen extends JPanel implements Runnable{
                     gg.setColor(darkdirt);
                 }
 				else{
-					gg.setColor(black);
+					gg.setColor(sky);
 				}
                 if(land[i][ii]!=0){
 				    gg.fillRect(ii*blockSize-screenX, i*blockSize-screenY, blockSize+1, blockSize+1);
-                    /*if(land[i][ii]==8){
-                        gg.drawImage(mmetal,ii*blockSize-screenX,i*blockSize-screenY,this);
-                    }**/
+                    if(land[i][ii]==9){
+                        gg.drawImage(lladder,ii*blockSize-screenX,i*blockSize-screenY,this);
+                    }
                 }
 			}
 		}
@@ -226,6 +228,9 @@ public class Screen extends JPanel implements Runnable{
                     }
                     else if(inventory.items.get(i).type=="metal"){
                         gg.drawImage(mmetal,mouseMenuButtonLeft(a)+5,mouseMenuButtonUp(10-(3+r))+9+2,this);
+                    }
+                    else if(inventory.items.get(i).type=="ladder"){
+                        gg.drawImage(lladder,mouseMenuButtonLeft(a)+5,mouseMenuButtonUp(10-(3+r))+9+2,this);
                     }
                     gg.drawString(Integer.toString(inventory.items.get(i).count),mouseMenuButtonLeft(a)+3,mouseMenuButtonUp(10-(3+r))+9+29);
                 }
@@ -363,15 +368,10 @@ public class Screen extends JPanel implements Runnable{
                                 selectedGnome = 0;
                                 break;
                             case 1:
-                                if(mouseX!=gnomes.get(selectedGnome).blockX){
-                                    gnomes.get(selectedGnome).targetBlockX=mouseX;
-                                    gnomes.get(selectedGnome).targetBlockY=mouseY;
-                                    gnomes.get(selectedGnome).myCommand = 1;
-                                    System.out.println(gnomes.get(selectedGnome).name + " is now moving towards "+gnomes.get(selectedGnome).targetBlockX);
-                                }
-                                else{
-                                    System.out.println("Selected something further away!");
-                                }
+                                gnomes.get(selectedGnome).targetBlockX=mouseX;
+                                gnomes.get(selectedGnome).targetBlockY=mouseY;
+                                gnomes.get(selectedGnome).myCommand = 1;
+                                System.out.println(gnomes.get(selectedGnome).name + " is now moving towards "+gnomes.get(selectedGnome).targetBlockX);
                                 break;
                             case 2:
                                 if(mouseX!=gnomes.get(selectedGnome).blockX){
@@ -495,6 +495,7 @@ public class Screen extends JPanel implements Runnable{
                         }
                     }
                 }
+                land[mouseY][mouseX]=9;
                 break;
         }
     }
@@ -564,8 +565,11 @@ public class Screen extends JPanel implements Runnable{
             trashBttn = ImageIO.read(imgPath);
             imgPath = getClass().getResource("/MainPackage/pics/craft_menu.png");
             craftMenu = ImageIO.read(imgPath);
+
             imgPath = getClass().getResource("/MainPackage/pics/hardMudCraft.png");
             hardMudCraft = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/ladderCraft.png");
+            ladderCraft = ImageIO.read(imgPath);
 
             imgPath = getClass().getResource("/MainPackage/pics/dirt.png");
             ddirt = ImageIO.read(imgPath);
@@ -579,6 +583,8 @@ public class Screen extends JPanel implements Runnable{
             wwood = ImageIO.read(imgPath);
             imgPath = getClass().getResource("/MainPackage/pics/metal.png");
             mmetal = ImageIO.read(imgPath);
+            imgPath = getClass().getResource("/MainPackage/pics/ladder.png");
+            lladder = ImageIO.read(imgPath);
         } catch (IOException e) {System.out.println("NOOOOO!");}
 
         //CREATE SOME VARS
@@ -595,6 +601,10 @@ public class Screen extends JPanel implements Runnable{
         //        ALL THE CRAFING RECIPES:
             //Hard Mud:
         craftables.add(new craftingRecipe("dirt",50,"harddirt",1,hardMudCraft));
+        craftables.add(new craftingRecipe("wood",6,"ladder",3,ladderCraft));
+
+        inventory.addItem("harddirt",500);
+        inventory.addItem("ladder",200);
 
 
 		while(true){

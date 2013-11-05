@@ -76,20 +76,12 @@ public class betterGnome{
     }
 
     public void buildAdjacent(int xxx, int yyy){
-        if(Screen.inventory.queue.type.equals("dirt")){
-            Screen.land[yyy][xxx]=2;
-            Screen.inventory.queue.count-=1;
-        }
-        else if(Screen.inventory.queue.type.equals("stone")){
-            Screen.land[yyy][xxx]=3;
-            Screen.inventory.queue.count-=1;
-        }
-        else if(Screen.inventory.queue.type.equals("metal")){
-            Screen.land[yyy][xxx]=4;
-            Screen.inventory.queue.count-=1;
-        }
-        else if(Screen.inventory.queue.type.equals("harddirt")){
+        if(Screen.inventory.queue.type.equals("harddirt")){
             Screen.land[yyy][xxx]=8;
+            Screen.inventory.queue.count-=1;
+        }
+        else if(Screen.inventory.queue.type.equals("ladder")){
+            Screen.land[yyy][xxx]=9;
             Screen.inventory.queue.count-=1;
         }
 
@@ -148,6 +140,14 @@ public class betterGnome{
                 digTimer = 0;
             }
         }
+        if(Screen.land[gridY][gridX]==9){//ladder
+            if(digTimer>20/pickAxeLevel){
+                Screen.land[gridY][gridX]=0;
+                //Screen.metalResource+=1;
+                Screen.inventory.addItem("ladder", 1);
+                digTimer = 0;
+            }
+        }
         if(Screen.land[gridY][gridX]==5){//wood!
             if(digTimer>120/pickAxeLevel){
                 Screen.land[gridY][gridX]=0;
@@ -184,7 +184,7 @@ public class betterGnome{
     //HIGHER COMMANDS:
 
     //MOVE DIRECTION AVOIDING OBSTACLES
-    public void moveHorizontal(){
+    /*public void moveHorizontal(){
         if(blockX<targetBlockX){
             dirMod=1;
         }
@@ -223,6 +223,74 @@ public class betterGnome{
             hspeed = 2*dirMod;
             if(vspeed==0&&!isFree(blockX,blockY+1)){
                 vspeed=-8;
+            }
+        }
+    }**/
+    public void moveHorizontal(){
+        if(blockX<targetBlockX){
+            dirMod=1;
+        }
+        else if(blockX>targetBlockX){
+            dirMod=-1;
+        }
+        else{
+            if(Screen.land[blockY][blockX]==9&&isFree(blockX,blockY-1)&&blockY>targetBlockY){
+                vspeed=-4;
+                hspeed=0;
+                goSpeed();
+            }
+            else{
+                if(x-(blockX*16)<7||x-(blockX*16)>9){
+                    hspeed = 7*dirMod;
+                    goSpeed();
+                }
+                dirMod=0;
+                System.out.println(name + " has gotten to target X!");
+                myCommand = 0;
+            }
+        }
+
+        if(Screen.land[blockY][blockX]==9){
+            if(blockY>targetBlockY){
+                vspeed=-4;
+                hspeed=0;
+            }
+        }
+
+        if(!isFree(blockX+dirMod,blockY)&&!isFree(blockX+dirMod,blockY-1)&&!isFree(blockX,blockY+1)&&vspeed==0){
+            if(x-(blockX*16)<7||x-(blockX*16)>9){
+                hspeed = 7*dirMod;
+                goSpeed();
+            }
+            dirMod=0;
+            System.out.println(name + " cannot continue!");
+            myCommand = 0;
+        }
+        if(isFree(blockX+dirMod,blockY)){
+            hspeed = 2*dirMod;
+        }
+        if(isFree(blockX+dirMod,blockY+1)){
+            if((x-(blockX*16)>6)&&(x-(blockX*16)<10)){
+                if(vspeed==0&&!isFree(blockX,blockY+1)){
+                    vspeed=-8;
+                }
+            }
+        }
+        if(!isFree(blockX+dirMod,blockY)){
+            hspeed = 2*dirMod;
+            if(vspeed==0&&!isFree(blockX,blockY+1)){
+                vspeed=-8;
+            }
+        }
+    }
+
+    public void climbLadder(){
+        if(Screen.land[blockY][blockX]==9){
+            if(isFree(blockX,blockY-1)){
+                if(!isFree(blockX+dirMod,blockY)||blockY<targetBlockY){
+                    vspeed=-4;
+                    hspeed=0;
+                }
             }
         }
     }
@@ -395,8 +463,10 @@ public class betterGnome{
             }
         }
         if(vspeed!=0){
-            if(collideCheck(0,vspeed)!=0){
-                moveVertical(vspeed);
+            if(!(Screen.land[blockY][blockX]==9&&targetBlockY<blockY&&vspeed>0)){
+                if(collideCheck(0,vspeed)!=0){
+                    moveVertical(vspeed);
+                }
             }
         }
     }

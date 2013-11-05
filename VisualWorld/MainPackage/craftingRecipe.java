@@ -84,7 +84,7 @@ public class craftingRecipe {
                 Screen.inventory.queue.count = resultCount;
                 Screen.inventory.queue.setMax();
             }
-            else if(Screen.inventory.queue.type.equals(result)&&Screen.inventory.queue.count<Screen.inventory.queue.maxCount){
+            else if(Screen.inventory.queue.type.equals(result)&&Screen.inventory.queue.count<(Screen.inventory.queue.maxCount-resultCount)){
                 Screen.inventory.queue.count += resultCount;
             }
         }
