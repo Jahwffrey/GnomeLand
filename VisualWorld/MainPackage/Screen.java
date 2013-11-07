@@ -46,6 +46,8 @@ public class Screen extends JPanel implements Runnable{
     public static int menuItemToBuild = 25;
 
     public static int craftMenuToRightVal = 0;
+
+    pathFinder pathy = new pathFinder(10,240);
     
     //GAMEPLAY VARS:
     public static menu inventory = new menu(5,5);
@@ -164,6 +166,23 @@ public class Screen extends JPanel implements Runnable{
 		}
         gg.setColor(red);
     	gg.drawRect(mouseX*blockSize-screenX,mouseY*blockSize-screenY,blockSize,blockSize);
+        gg.fillRect(pathy.x*blockSize-screenX,pathy.y*blockSize-screenY,blockSize,blockSize);
+        if(pathy.openList.size()>0){
+            for(int i = 0;i<pathy.openList.size();i++){
+                gg.setColor(black);
+                gg.fillRect(pathy.openList.get(i).x*blockSize-screenX,pathy.openList.get(i).y*blockSize-screenY,blockSize,blockSize);
+                gg.setColor(Color.white);
+                gg.drawString(Integer.toString(pathy.openList.get(i).totalCost),pathy.openList.get(i).x*blockSize-screenX,pathy.openList.get(i).y*blockSize-screenY+10);
+            }
+        }
+        gg.setColor(grass);
+        if(pathy.closedList.size()>0){
+            for(int i = 0; i<pathy.closedList.size();i++){
+                if(pathy.closedList.get(i).prev!=null){
+                    gg.drawLine(pathy.closedList.get(i).x*blockSize-screenX+8,pathy.closedList.get(i).y*blockSize-screenY+8,pathy.closedList.get(i).prev.x*blockSize-screenX+8,pathy.closedList.get(i).prev.y*blockSize-screenY+8);
+                }
+            }
+        }
         for(int i = 1;i<gnomes.size();i++){
             gg.setColor(red);
             gg.fillRect((gnomes.get(i).x-screenX)-4,(gnomes.get(i).y-screenY)-4,8,8);
@@ -272,6 +291,12 @@ public class Screen extends JPanel implements Runnable{
                 break;
             case KeyEvent.VK_5:
                 mouseCommand = 6;
+                break;
+            case KeyEvent.VK_P:
+                mouseCommand = 10;
+                break;
+            case KeyEvent.VK_O:
+                pathy.pathFind(mouseX,mouseY);
                 break;
         }
     	
@@ -505,6 +530,9 @@ public class Screen extends JPanel implements Runnable{
         mouseY = (((mk.getY()+(blockSize/2))+screenY)/blockSize)-2;
         superMouseX=mk.getX();
         superMouseY=mk.getY();
+        if(mouseCommand==10){
+            land[mouseY][mouseX]=0;
+        }
     }
 
     public void mouseReleased(MouseEvent mk){
@@ -542,6 +570,8 @@ public class Screen extends JPanel implements Runnable{
         long now;
         int waitFrames = 10;
         int maxWaitFrames = 10;
+
+
 
         //LOAD IMAGES:
         URL imgPath = getClass().getResource("/MainPackage/pics/bottom_menu.png");
@@ -589,6 +619,9 @@ public class Screen extends JPanel implements Runnable{
 
         //CREATE SOME VARS
 		land = World.generate(worldHeightInBlocks, worldLengthInBlocks, 10, 10, 12, 400, 400);
+
+        pathy.pathFind(3,270);
+
 		int testVar = 0;
         gnomes.add(new betterGnome(10,240,"Nobody"));
         gnomes.add(new betterGnome(20,240,"Josh"));
