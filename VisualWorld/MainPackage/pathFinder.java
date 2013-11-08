@@ -56,7 +56,7 @@ public class pathFinder {
         mergeUnsortedWithSortedList(newNodes,openList);
         newNodes.clear();
 
-        for(int ii = 0;ii<4000;ii++){
+        for(int ii = 0;ii<8000;ii++){
             if(openList.size()>0){
                 detectNeighborsOfNode(openList.get(0),newNodes);
                 if(newNodes.size()>0){
@@ -123,12 +123,20 @@ public class pathFinder {
     void detectNeighborsOfNode(node aNode,ArrayList<node> theNodes){
         int xx = -1;
         int yy = 0;
-        int costy = 1;
+        int costy = (int) Math.sqrt(Math.pow(Math.abs(aNode.x-x),2)+Math.pow(Math.abs(aNode.y-y),2));
         if(exists(aNode.x+xx,aNode.y+yy)){
             if(isFree(aNode.x+xx,aNode.y+yy)){
                 if(openList.size()>0){
-                    if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)&&!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy))
-                        theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                    if(!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy)){
+                        if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)){
+                            theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                        }
+                        /*else if(thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)){
+                            for(int i = 0;i<openList.size();i++){
+                                ()
+                            }
+                        }**/
+                    }
                 }
             }
         }
@@ -162,8 +170,6 @@ public class pathFinder {
                 }
             }
         }
-
-        costy = 1;
         xx=-1;
         yy=-1;
         if(exists(aNode.x+xx,aNode.y+yy)){

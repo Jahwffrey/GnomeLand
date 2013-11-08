@@ -174,7 +174,6 @@ public class Screen extends JPanel implements Runnable{
                 gg.setColor(black);
                 gg.fillRect(pathy.openList.get(i).x*blockSize-screenX,pathy.openList.get(i).y*blockSize-screenY,blockSize,blockSize);
                 gg.setColor(Color.white);
-                gg.drawString(Integer.toString(pathy.openList.get(i).totalCost),pathy.openList.get(i).x*blockSize-screenX,pathy.openList.get(i).y*blockSize-screenY+10);
             }
         }
         gg.setColor(grass);

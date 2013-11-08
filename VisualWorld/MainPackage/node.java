@@ -20,7 +20,7 @@ public class node {
         y=yy;
         prev=pprev;
         moveCost=mmoveCost;
-        dist=Math.abs(x-goalX)+Math.abs(y-goalY);
+        dist=(int)Math.sqrt(Math.pow(Math.abs(x-goalX),2)+Math.pow(Math.abs(y-goalY),2));
         totalCost = moveCost + dist;
     }
 }
