@@ -108,7 +108,9 @@ public class Screen extends JPanel implements Runnable{
     Color water = new Color(0,0,255);
     Color black  = new Color(0,0,0);
     Color red = new Color(255,0,0);
-    
+
+    public boolean doPath=false;
+
     //STAGE PARTS:
     public Screen(){
     	thisThread=new Thread(this);
@@ -180,6 +182,14 @@ public class Screen extends JPanel implements Runnable{
             for(int i = 0; i<pathy.closedList.size();i++){
                 if(pathy.closedList.get(i).prev!=null){
                     gg.drawLine(pathy.closedList.get(i).x*blockSize-screenX+8,pathy.closedList.get(i).y*blockSize-screenY+8,pathy.closedList.get(i).prev.x*blockSize-screenX+8,pathy.closedList.get(i).prev.y*blockSize-screenY+8);
+                }
+            }
+        }
+        gg.setColor(red);
+        if(pathy.finalPath.size()>0){
+            for(int i = 0; i<pathy.finalPath.size();i++){
+                if(pathy.finalPath.get(i).prev!=null){
+                    gg.drawLine(pathy.finalPath.get(i).x*blockSize-screenX+8,pathy.finalPath.get(i).y*blockSize-screenY+8,pathy.finalPath.get(i).prev.x*blockSize-screenX+8,pathy.finalPath.get(i).prev.y*blockSize-screenY+8);
                 }
             }
         }
@@ -295,8 +305,14 @@ public class Screen extends JPanel implements Runnable{
             case KeyEvent.VK_P:
                 mouseCommand = 10;
                 break;
+            case KeyEvent.VK_U:
+                mouseCommand = 11;
+                break;
             case KeyEvent.VK_O:
                 pathy.pathFind(mouseX,mouseY);
+                break;
+            case KeyEvent.VK_I:
+                doPath = true;
                 break;
         }
     	
@@ -317,6 +333,9 @@ public class Screen extends JPanel implements Runnable{
     	case KeyEvent.VK_D:
     		rightPress = 0;
     		break;
+            case KeyEvent.VK_I:
+                doPath = false;
+                break;
     	}
     }
 
@@ -533,6 +552,9 @@ public class Screen extends JPanel implements Runnable{
         if(mouseCommand==10){
             land[mouseY][mouseX]=0;
         }
+        if(mouseCommand==11){
+            land[mouseY][mouseX]=1;
+        }
     }
 
     public void mouseReleased(MouseEvent mk){
@@ -620,7 +642,7 @@ public class Screen extends JPanel implements Runnable{
         //CREATE SOME VARS
 		land = World.generate(worldHeightInBlocks, worldLengthInBlocks, 10, 10, 12, 400, 400);
 
-        pathy.pathFind(3,270);
+        //pathy.pathFind(3,270);
 
 		int testVar = 0;
         gnomes.add(new betterGnome(10,240,"Nobody"));
@@ -643,6 +665,9 @@ public class Screen extends JPanel implements Runnable{
 		while(true){
 
             if(waitFrames<1){
+
+                if(doPath) pathy.traversePath();
+
                 //WHERE ARE ALL GNOME VALUES?
                 for(int i = 1;i<gnomes.size();i++){
                     //EACH GNOME:
