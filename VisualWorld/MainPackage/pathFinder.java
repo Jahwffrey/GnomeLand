@@ -32,9 +32,78 @@ public class pathFinder {
             return;
         }
 
-        if(Math.abs(targetX-x)<=1&&Math.abs(targetY-y)<=1){
-            x=targetX;
-            y=targetY;
+        if(!isFree(targetX,targetY)){
+            return;
+        }
+
+        openList.clear();
+        closedList.clear();
+        finalPath.clear();
+        goalX=targetX;
+        goalY=targetY;
+        node start = new node(x,y,null,0,goalX,goalY);
+        closedList.add(0, start);
+        ArrayList<node> newNodes = new ArrayList<node>();
+        openList.add(new node(0,0,null,0,0,0));
+        detectNeighborsOfNodeWithGravity(start,newNodes);
+        openList.clear();
+        mergeUnsortedWithSortedList(newNodes,openList);
+        newNodes.clear();
+
+        for(int ii = 0;ii<8000;ii++){
+            if(openList.size()>0){
+                detectNeighborsOfNodeWithGravity(openList.get(0),newNodes);
+                if(newNodes.size()>0){
+                    for(int i = 0;i<newNodes.size();i++){
+                        if(newNodes.get(i).dist==0){
+                            closedList.add(0,newNodes.get(i));
+                            found = true;
+                        }
+                    }
+                }
+                closedList.add(openList.get(0));
+                openList.remove(0);
+            }
+            if(found){
+                break;
+            }
+            mergeUnsortedWithSortedList(newNodes,openList);
+            newNodes.clear();
+        }
+        if(found){
+            startOfFinalPath = constructPath(closedList.get(0),start);
+        }
+        /*for(int i = 0;i<newNodes.size();i++){
+            openList.add(newNodes.get(i));
+        }**/
+        //mergeUnsortedWithSortedList(newNodes,openList);
+        //(openList.size()>0){
+
+        //}
+    }
+
+    public node constructPath(node noda, node nodeStart){
+        if(noda.prev!=nodeStart){
+            node p = new node(noda.x,noda.y,constructPath(noda.prev,nodeStart),0,0,0);
+            finalPath.add(p);
+            return p;
+        }
+        else{
+            node p = new node(noda.x,noda.y,nodeStart,0,0,0);
+            finalPath.add(p);
+            return p;
+        }
+    }
+
+    public ArrayList<node> giveValidPath(int goalXX,int goalYY){
+        pathFind(goalXX,goalYY);
+        return finalPath;
+    }
+
+    public void pathFindNoGrav(int targetX,int targetY){
+        boolean found = false;
+
+        if(targetX==x&&targetY==y){
             return;
         }
 
@@ -86,19 +155,6 @@ public class pathFinder {
         //(openList.size()>0){
 
         //}
-    }
-
-    public node constructPath(node noda, node nodeStart){
-        if(noda.prev!=nodeStart){
-            node p = new node(noda.x,noda.y,constructPath(noda.prev,nodeStart),0,0,0);
-            finalPath.add(p);
-            return p;
-        }
-        else{
-            node p = new node(noda.x,noda.y,nodeStart,0,0,0);
-            finalPath.add(p);
-            return p;
-        }
     }
 
     public void mergeUnsortedWithSortedList(ArrayList<node> unsorted,ArrayList<node> sorted){
@@ -207,6 +263,276 @@ public class pathFinder {
                 if(openList.size()>0){
                     if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)&&!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy))
                         theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                }
+            }
+        }
+    }
+
+    void detectNeighborsOfNodeWithGravity(node aNode,ArrayList<node> theNodes){
+        int xx;
+        int yy;
+        int dirr;
+        int costy = (int) Math.sqrt(Math.pow(Math.abs(aNode.x-x),2)+Math.pow(Math.abs(aNode.y-y),2));
+        if(isFree(aNode.x,aNode.y+1)){
+            boolean allFull=false;
+            int times = 0;
+            int widt = 1;
+            int xr = 0;
+            //check which ones you can jump to
+            if(Screen.land[aNode.y][aNode.x]==9){
+                xx=0;
+                yy=-1;
+                if(exists(aNode.x+xx,aNode.y+yy)){
+                    if(isFree(aNode.x+xx,aNode.y+yy)){
+                        if(openList.size()>0){
+                            if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)&&!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy))
+                                theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                        }
+                    }
+                }
+                xx=1;
+                yy=-1;
+                if(exists(aNode.x+xx,aNode.y+yy)){
+                    if(isFree(aNode.x+xx,aNode.y+yy)){
+                        if(openList.size()>0){
+                            if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)&&!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy))
+                                theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                        }
+                    }
+                }
+                xx=-1;
+                yy=-1;
+                if(exists(aNode.x+xx,aNode.y+yy)){
+                    if(isFree(aNode.x+xx,aNode.y+yy)){
+                        if(openList.size()>0){
+                            if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)&&!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy))
+                                theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                        }
+                    }
+                }
+            }
+
+            if(aNode.prev!=null&&!isFree(aNode.prev.x,aNode.prev.y+1)){
+                xx=1;
+                yy=1;
+                if(exists(aNode.x+xx,aNode.y+yy)){
+                    if(isFree(aNode.x+xx,aNode.y+yy)){
+                        if(openList.size()>0){
+                            if(!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy)){
+                                if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)){
+                                    theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                                }
+                            }
+                        }
+                    }
+                }
+                xx=-1;
+                yy=1;
+                if(exists(aNode.x+xx,aNode.y+yy)){
+                    if(isFree(aNode.x+xx,aNode.y+yy)){
+                        if(openList.size()>0){
+                            if(!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy)){
+                                if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)){
+                                    theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                                }
+                            }
+                        }
+                    }
+                }
+                if(aNode.prev.y==aNode.y+1){
+                    xx=0;
+                    yy=-1;
+                    if(exists(aNode.x+xx,aNode.y+yy)){
+                        if(isFree(aNode.x+xx,aNode.y+yy)){
+                            if(openList.size()>0){
+                                if(!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy)){
+                                    if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)){
+                                        theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode.prev,costy,goalX,goalY));
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    xx=1;
+                    yy=-1;
+                    if(exists(aNode.x+xx,aNode.y+yy)){
+                        if(isFree(aNode.x+xx,aNode.y+yy)&&aNode.x+xx!=aNode.prev.x){
+                            if(openList.size()>0){
+                                if(!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy)){
+                                    if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)){
+                                        theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode.prev,costy,goalX,goalY));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    xx=-1;
+                    yy=-1;
+                    if(exists(aNode.x+xx,aNode.y+yy)){
+                        if(isFree(aNode.x+xx,aNode.y+yy)&&aNode.x+xx!=aNode.prev.x){
+                            if(openList.size()>0){
+                                if(!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy)){
+                                    if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)){
+                                        theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode.prev,costy,goalX,goalY));
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+            xx=0;
+            yy=1;
+            if(exists(aNode.x+xx,aNode.y+yy)){
+                if(isFree(aNode.x+xx,aNode.y+yy)){
+                    if(openList.size()>0){
+                        if(!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy)){
+                            if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)){
+                                theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                            }
+                        }
+                    }
+                }
+            }
+            xx=0;
+            yy=2;
+            if(exists(aNode.x+xx,aNode.y+yy)){
+                if(isFree(aNode.x+xx,aNode.y+yy)&&isFree(aNode.x+xx,aNode.y+1)){
+                    if(openList.size()>0){
+                        if(!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy)){
+                            if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)){
+                                theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                            }
+                        }
+                    }
+                }
+            }
+            xx=0;
+            yy=3;
+            if(exists(aNode.x+xx,aNode.y+yy)){
+                if(isFree(aNode.x+xx,aNode.y+yy)&&isFree(aNode.x+xx,aNode.y+1)&&isFree(aNode.x+xx,aNode.y+2)){
+                    if(openList.size()>0){
+                        if(!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy)){
+                            if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)){
+                                theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                            }
+                        }
+                    }
+                }
+            }
+            xx=1;
+            yy=3;
+            if(exists(aNode.x+xx,aNode.y+yy)){
+                if(isFree(aNode.x+xx,aNode.y+yy)&&isFree(aNode.x+xx,aNode.y+1)&&isFree(aNode.x+xx,aNode.y+2)){
+                    if(openList.size()>0){
+                        if(!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy)){
+                            if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)){
+                                theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                            }
+                        }
+                    }
+                }
+            }
+            xx=-1;
+            yy=3;
+            if(exists(aNode.x+xx,aNode.y+yy)){
+                if(isFree(aNode.x+xx,aNode.y+yy)&&isFree(aNode.x+xx,aNode.y+1)&&isFree(aNode.x+xx,aNode.y+2)){
+                    if(openList.size()>0){
+                        if(!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy)){
+                            if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)){
+                                theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+        if(!isFree(aNode.x,aNode.y+1)){
+            xx=-1;
+            yy=0;
+            if(exists(aNode.x+xx,aNode.y+yy)){
+                if(isFree(aNode.x+xx,aNode.y+yy)){
+                    if(openList.size()>0){
+                        if(!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy)){
+                            if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)){
+                                theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                            }
+                        }
+                    }
+                }
+            }
+            xx=0;
+            yy=-1;
+            if(exists(aNode.x+xx,aNode.y+yy)){
+                if(isFree(aNode.x+xx,aNode.y+yy)){
+                    if(openList.size()>0){
+                        if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)&&!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy))
+                            theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                    }
+                }
+            }
+            xx=0;
+            yy=-2;
+            if(exists(aNode.x+xx,aNode.y+yy)){
+                if(isFree(aNode.x+xx,aNode.y+yy)&&isFree(aNode.x+xx,aNode.y+1)){
+                    if(openList.size()>0){
+                        if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)&&!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy))
+                            theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                    }
+                }
+            }
+            xx=1;
+            yy=-2;
+            if(exists(aNode.x+xx,aNode.y+yy)){
+                if(isFree(aNode.x+xx,aNode.y+yy)&&!isFree(aNode.x+xx,aNode.y+yy+1)&&isFree(aNode.x,aNode.y-1)&&isFree(aNode.x,aNode.y-2)){
+                    if(openList.size()>0){
+                        if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)&&!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy))
+                            theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                    }
+                }
+            }
+            xx=-1;
+            yy=-2;
+            if(exists(aNode.x+xx,aNode.y+yy)){
+                if(isFree(aNode.x+xx,aNode.y+yy)&&!isFree(aNode.x+xx,aNode.y+yy+1)&&isFree(aNode.x,aNode.y-1)&&isFree(aNode.x,aNode.y-2)){
+                    if(openList.size()>0){
+                        if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)&&!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy))
+                            theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                    }
+                }
+            }
+            xx=1;
+            yy=0;
+            if(exists(aNode.x+xx,aNode.y+yy)){
+                if(isFree(aNode.x+xx,aNode.y+yy)){
+                    if(openList.size()>0){
+                        if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)&&!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy))
+                            theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                    }
+                }
+            }
+            xx=-1;
+            yy=-1;
+            if(exists(aNode.x+xx,aNode.y+yy)){
+                if((isFree(aNode.x+xx,aNode.y+yy))&&(isFree(aNode.x,aNode.y+yy)||isFree(aNode.x+xx,aNode.y))){
+                    if(openList.size()>0){
+                        if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)&&!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy))
+                            theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                    }
+                }
+            }
+            xx=1;
+            yy=-1;
+            if(exists(aNode.x+xx,aNode.y+yy)){
+                if((isFree(aNode.x+xx,aNode.y+yy))&&(isFree(aNode.x,aNode.y+yy)||isFree(aNode.x+xx,aNode.y))){
+                    if(openList.size()>0){
+                        if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)&&!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy))
+                            theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
+                    }
                 }
             }
         }

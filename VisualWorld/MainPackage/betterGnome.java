@@ -1,6 +1,5 @@
 package MainPackage;
-
-import java.math.*;
+import java.util.ArrayList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -33,6 +32,9 @@ public class betterGnome{
     int pickAxeLevel;
 
     boolean imSelected;
+    ArrayList<node> validPath = new ArrayList<node>();
+    int whereInPath;
+
 
     //CONSTRUCTORS!
     public betterGnome(){
@@ -59,6 +61,99 @@ public class betterGnome{
         imSelected = false;
         myCommand = 0;
         pickAxeLevel=10;
+    }
+
+    public void findPath(int targX,int targY){
+        pathFinder me = new pathFinder(blockX,blockY);
+        validPath.clear();
+        validPath=me.giveValidPath(targX,targY);
+        if(validPath.size()>0){
+            whereInPath=0;
+        }
+    }
+
+    public void followPath(){
+        int sept = 0;
+        if(validPath.size()>0){
+            if(whereInPath<validPath.size()){
+
+                if(validPath.get(whereInPath).x>blockX&&validPath.get(whereInPath).y>=blockY){
+                    hspeed=2;
+                }
+                if(validPath.get(whereInPath).x<blockX&&validPath.get(whereInPath).y>=blockY){
+                    hspeed=-2;
+                }
+                if(validPath.get(whereInPath).x>blockX&&validPath.get(whereInPath).y<blockY){
+                    if(vspeed>=0&&blockY>validPath.get(whereInPath).y){
+                        if(x-(blockX*16)>10){
+                            if(x-(blockX*16)<12||vspeed!=0){
+                                hspeed=2;
+                                vspeed=-5*(blockY-validPath.get(whereInPath).y);
+                            }
+                            else{
+                                hspeed=-1;
+                            }
+                        }
+                        else{
+                            hspeed=1;
+                        }
+                    }
+                }
+                if(validPath.get(whereInPath).x<blockX&&validPath.get(whereInPath).y<blockY){
+                    if(vspeed>=0&&blockY>validPath.get(whereInPath).y){
+                        if(x-(blockX*16)<6){
+                            if(x-(blockX*16)>4||vspeed!=0){
+                                hspeed=-2;
+                                vspeed=-5*(blockY-validPath.get(whereInPath).y);
+                            }
+                            else{
+                                hspeed=1;
+                            }
+                        }
+                        else{
+                            hspeed=-1;
+                        }
+                    }
+                }
+
+                if(blockX==validPath.get(whereInPath).x){
+                    if(blockY==validPath.get(whereInPath).y){
+                        whereInPath++;
+                    }
+                    else if(blockY<validPath.get(whereInPath).y){
+                        hspeed=0;
+                    }
+                    else if(blockY>validPath.get(whereInPath).y){
+                        if(Screen.land[blockY][blockX]==9){
+                            vspeed=-4;
+                            if(x-(blockX*16)<10||x-(blockX*16)>6){
+                                hspeed=0;
+                            }
+                            else{
+                                if(x-(blockX*16)>10){
+                                    hspeed=-1;
+                                }
+                                else{
+                                    hspeed=1;
+                                }
+                            }
+                        }
+                        else{
+                            whereInPath++;
+                        }
+                    }
+                }
+
+
+
+            }
+            else{
+                hspeed=0;
+                whereInPath=0;
+                validPath.clear();
+                myCommand = 0;
+            }
+        }
     }
 
     //WILL BE EDITED OFTEN COMMANDS:
@@ -181,51 +276,6 @@ public class betterGnome{
         }
     }
 
-    //HIGHER COMMANDS:
-
-    //MOVE DIRECTION AVOIDING OBSTACLES
-    /*public void moveHorizontal(){
-        if(blockX<targetBlockX){
-            dirMod=1;
-        }
-        else if(blockX>targetBlockX){
-            dirMod=-1;
-        }
-        else{
-            if(x-(blockX*16)<7||x-(blockX*16)>9){
-                hspeed = 7*dirMod;
-                goSpeed();
-            }
-            dirMod=0;
-            System.out.println(name + " has gotten to target X!");
-            myCommand = 0;
-        }
-        if(!isFree(blockX+dirMod,blockY)&&!isFree(blockX+dirMod,blockY-1)&&!isFree(blockX,blockY+1)&&vspeed==0){
-            if(x-(blockX*16)<7||x-(blockX*16)>9){
-                hspeed = 7*dirMod;
-                goSpeed();
-            }
-            dirMod=0;
-            System.out.println(name + " cannot continue!");
-            myCommand = 0;
-        }
-        if(isFree(blockX+dirMod,blockY)){
-            hspeed = 2*dirMod;
-        }
-        if(isFree(blockX+dirMod,blockY+1)){
-            if((x-(blockX*16)>6)&&(x-(blockX*16)<10)){
-                if(vspeed==0&&!isFree(blockX,blockY+1)){
-                    vspeed=-8;
-                }
-            }
-        }
-        if(!isFree(blockX+dirMod,blockY)){
-            hspeed = 2*dirMod;
-            if(vspeed==0&&!isFree(blockX,blockY+1)){
-                vspeed=-8;
-            }
-        }
-    }**/
     public void moveHorizontal(){
         if(blockX<targetBlockX){
             dirMod=1;
@@ -236,7 +286,6 @@ public class betterGnome{
         else{
             if(Screen.land[blockY][blockX]==9&&isFree(blockX,blockY-1)&&blockY>targetBlockY){
                 vspeed=-4;
-                hspeed=0;
                 goSpeed();
             }
             else{
@@ -253,7 +302,6 @@ public class betterGnome{
         if(Screen.land[blockY][blockX]==9){
             if(blockY>targetBlockY){
                 vspeed=-4;
-                hspeed=0;
             }
         }
 
@@ -280,17 +328,6 @@ public class betterGnome{
             hspeed = 2*dirMod;
             if(vspeed==0&&!isFree(blockX,blockY+1)){
                 vspeed=-8;
-            }
-        }
-    }
-
-    public void climbLadder(){
-        if(Screen.land[blockY][blockX]==9){
-            if(isFree(blockX,blockY-1)){
-                if(!isFree(blockX+dirMod,blockY)||blockY<targetBlockY){
-                    vspeed=-4;
-                    hspeed=0;
-                }
             }
         }
     }

@@ -169,14 +169,7 @@ public class Screen extends JPanel implements Runnable{
         gg.setColor(red);
     	gg.drawRect(mouseX*blockSize-screenX,mouseY*blockSize-screenY,blockSize,blockSize);
         gg.fillRect(pathy.x*blockSize-screenX,pathy.y*blockSize-screenY,blockSize,blockSize);
-        if(pathy.openList.size()>0){
-            for(int i = 0;i<pathy.openList.size();i++){
-                gg.setColor(black);
-                gg.fillRect(pathy.openList.get(i).x*blockSize-screenX,pathy.openList.get(i).y*blockSize-screenY,blockSize,blockSize);
-                gg.setColor(Color.white);
-            }
-        }
-        gg.setColor(grass);
+        gg.setColor(Color.BLACK);
         if(pathy.closedList.size()>0){
             for(int i = 0; i<pathy.closedList.size();i++){
                 if(pathy.closedList.get(i).prev!=null){
@@ -189,6 +182,13 @@ public class Screen extends JPanel implements Runnable{
             for(int i = 0; i<pathy.finalPath.size();i++){
                 if(pathy.finalPath.get(i).prev!=null){
                     gg.drawLine(pathy.finalPath.get(i).x*blockSize-screenX+8,pathy.finalPath.get(i).y*blockSize-screenY+8,pathy.finalPath.get(i).prev.x*blockSize-screenX+8,pathy.finalPath.get(i).prev.y*blockSize-screenY+8);
+                }
+            }
+        }
+        if(gnomes.get(1).validPath.size()>0){
+            for(int i = 0; i<gnomes.get(1).validPath.size();i++){
+                if(gnomes.get(1).validPath.get(i).prev!=null){
+                    gg.drawLine(gnomes.get(1).validPath.get(i).x*blockSize-screenX+8,gnomes.get(1).validPath.get(i).y*blockSize-screenY+8,gnomes.get(1).validPath.get(i).prev.x*blockSize-screenX+8,gnomes.get(1).validPath.get(i).prev.y*blockSize-screenY+8);
                 }
             }
         }
@@ -308,10 +308,13 @@ public class Screen extends JPanel implements Runnable{
                 mouseCommand = 11;
                 break;
             case KeyEvent.VK_O:
-                pathy.pathFind(mouseX,mouseY);
+                pathy.pathFindNoGrav(mouseX,mouseY);
                 break;
             case KeyEvent.VK_I:
                 doPath = true;
+                break;
+            case KeyEvent.VK_Y:
+                mouseCommand =12;
                 break;
         }
     	
@@ -411,8 +414,7 @@ public class Screen extends JPanel implements Runnable{
                                 selectedGnome = 0;
                                 break;
                             case 1:
-                                gnomes.get(selectedGnome).targetBlockX=mouseX;
-                                gnomes.get(selectedGnome).targetBlockY=mouseY;
+                                gnomes.get(selectedGnome).findPath(mouseX,mouseY);
                                 gnomes.get(selectedGnome).myCommand = 1;
                                 System.out.println(gnomes.get(selectedGnome).name + " is now moving towards "+gnomes.get(selectedGnome).targetBlockX);
                                 break;
@@ -554,6 +556,9 @@ public class Screen extends JPanel implements Runnable{
         if(mouseCommand==11){
             land[mouseY][mouseX]=1;
         }
+        if(mouseCommand==12){
+            land[mouseY][mouseX]=9;
+        }
     }
 
     public void mouseReleased(MouseEvent mk){
@@ -674,7 +679,7 @@ public class Screen extends JPanel implements Runnable{
 
                     switch(gnomes.get(i).myCommand){
                         case 1:
-                            gnomes.get(i).moveHorizontal();
+                            gnomes.get(i).followPath();
                             break;
                         case 2:
                             gnomes.get(i).digHorizontal();
