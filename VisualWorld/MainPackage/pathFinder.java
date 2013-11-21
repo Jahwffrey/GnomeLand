@@ -293,7 +293,7 @@ public class pathFinder {
                 xx=1;
                 yy=-1;
                 if(exists(aNode.x+xx,aNode.y+yy)){
-                    if(isFree(aNode.x+xx,aNode.y+yy)){
+                    if(isFree(aNode.x+xx,aNode.y+yy)&&(isFree(aNode.x,aNode.y+yy)||isFree(aNode.x+xx,aNode.y))){
                         if(openList.size()>0){
                             if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)&&!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy))
                                 theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
@@ -303,7 +303,7 @@ public class pathFinder {
                 xx=-1;
                 yy=-1;
                 if(exists(aNode.x+xx,aNode.y+yy)){
-                    if(isFree(aNode.x+xx,aNode.y+yy)){
+                    if(isFree(aNode.x+xx,aNode.y+yy)&&(isFree(aNode.x,aNode.y+yy)||isFree(aNode.x+xx,aNode.y))){
                         if(openList.size()>0){
                             if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)&&!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy))
                                 theNodes.add(new node(aNode.x+xx,aNode.y+yy,aNode,costy,goalX,goalY));
@@ -357,7 +357,7 @@ public class pathFinder {
                     xx=1;
                     yy=-1;
                     if(exists(aNode.x+xx,aNode.y+yy)){
-                        if(isFree(aNode.x+xx,aNode.y+yy)&&aNode.x+xx!=aNode.prev.x){
+                        if(isFree(aNode.x+xx,aNode.y+yy)&&aNode.x+xx!=aNode.prev.x&&isFree(aNode.x,aNode.y+yy)){
                             if(openList.size()>0){
                                 if(!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy)){
                                     if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)){
@@ -370,7 +370,7 @@ public class pathFinder {
                     xx=-1;
                     yy=-1;
                     if(exists(aNode.x+xx,aNode.y+yy)){
-                        if(isFree(aNode.x+xx,aNode.y+yy)&&aNode.x+xx!=aNode.prev.x){
+                        if(isFree(aNode.x+xx,aNode.y+yy)&&aNode.x+xx!=aNode.prev.x&&isFree(aNode.x,aNode.y+yy)){
                             if(openList.size()>0){
                                 if(!thereExistsThisNodeInClosed(aNode.x+xx,aNode.y+yy)){
                                     if(!thereExistsThisNodeInOpen(aNode.x+xx,aNode.y+yy)){

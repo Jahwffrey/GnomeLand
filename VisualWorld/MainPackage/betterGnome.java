@@ -85,7 +85,7 @@ public class betterGnome{
                 }
                 if(validPath.get(whereInPath).x>blockX&&validPath.get(whereInPath).y<blockY){
                     if(vspeed>=0&&blockY>validPath.get(whereInPath).y){
-                        if(x-(blockX*16)>10){
+                        if(x-(blockX*16)>10||vspeed!=0){
                             if(x-(blockX*16)<12||vspeed!=0){
                                 hspeed=2;
                                 vspeed=-5*(blockY-validPath.get(whereInPath).y);
@@ -101,7 +101,7 @@ public class betterGnome{
                 }
                 if(validPath.get(whereInPath).x<blockX&&validPath.get(whereInPath).y<blockY){
                     if(vspeed>=0&&blockY>validPath.get(whereInPath).y){
-                        if(x-(blockX*16)<6){
+                        if(x-(blockX*16)<6||vspeed!=0){
                             if(x-(blockX*16)>4||vspeed!=0){
                                 hspeed=-2;
                                 vspeed=-5*(blockY-validPath.get(whereInPath).y);
@@ -121,7 +121,15 @@ public class betterGnome{
                         whereInPath++;
                     }
                     else if(blockY<validPath.get(whereInPath).y){
-                        hspeed=0;
+                        if(x-(blockX*16)>9){
+                            hspeed =-1;
+                        }
+                        else if(x-(blockX*16)<7){
+                            hspeed = 1;
+                        }
+                        else{
+                            hspeed=0;
+                        }
                     }
                     else if(blockY>validPath.get(whereInPath).y){
                         if(Screen.land[blockY][blockX]==9){
@@ -138,13 +146,11 @@ public class betterGnome{
                                 }
                             }
                         }
-                        else{
+                        else if(vspeed>=0){
                             whereInPath++;
                         }
                     }
                 }
-
-
 
             }
             else{
@@ -299,11 +305,6 @@ public class betterGnome{
             }
         }
 
-        if(Screen.land[blockY][blockX]==9){
-            if(blockY>targetBlockY){
-                vspeed=-4;
-            }
-        }
 
         if(!isFree(blockX+dirMod,blockY)&&!isFree(blockX+dirMod,blockY-1)&&!isFree(blockX,blockY+1)&&vspeed==0){
             if(x-(blockX*16)<7||x-(blockX*16)>9){
@@ -392,8 +393,6 @@ public class betterGnome{
             System.out.println(name +"'s block is too far away!");
         }
     }
-
-
 
     //DIG DIAGONAL
     public void digDiagonal(){
@@ -489,10 +488,6 @@ public class betterGnome{
         }
     }
 
-
-    //LOWER COMMANDS
-
-    //MOVEMENT COMMANDS!
     public void goSpeed(){
         if(hspeed!=0){
             if(collideCheck(hspeed,0)!=0){
@@ -500,10 +495,8 @@ public class betterGnome{
             }
         }
         if(vspeed!=0){
-            if(!(Screen.land[blockY][blockX]==9&&targetBlockY<blockY&&vspeed>0)){
-                if(collideCheck(0,vspeed)!=0){
-                    moveVertical(vspeed);
-                }
+            if(collideCheck(0,vspeed)!=0){
+                moveVertical(vspeed);
             }
         }
     }
